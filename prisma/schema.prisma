@@ -1,0 +1,91 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  email            String          @unique
+  name             String?
+  gender           Gender?
+  weight           Int?   
+  location         String?     
+  role             Role            @default(USER)
+  status           Status          @default(PENDING)
+  password         String
+  referCode        String?
+  //for AI
+  goal             String?
+  eatMeat          Boolean?  
+  lactoseIntolerant Boolean?
+  anyAllergies      String?
+  eatingStyle       String?
+  caffeineIntake    String?
+  sugerIntake       String?
+  workOutDaysInWeek Int?
+  workoutType       String?
+  
+
+  fcmToken         String?
+  image            String?
+  isVerified       Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  receiver         Notifications[] @relation("receiverDetails")
+  sender           Notifications[] @relation("senderDetails")
+}
+
+model Otp {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
+  otp       Int
+  expiry    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("otps")
+}
+
+
+model Notifications {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  receiverId String   @db.ObjectId
+  senderId   String?  @db.ObjectId
+  title      String
+  body       String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id])
+  sender     User?    @relation("senderDetails", fields: [senderId], references: [id])
+}
+
+enum Role {
+  USER
+  TECHNICIAN
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum Status {
+  PENDING
+  ACTIVE
+  BLOCKED
+}
+
+enum Gender{
+  MALE
+  FEMALE
+  OTHER
+}
