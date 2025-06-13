@@ -24,10 +24,10 @@ model User {
   goal             String?
   eatMeat          Boolean?  
   lactoseIntolerant Boolean?
-  anyAllergies      String?
+  anyAllergies      String[]     @default([])
   eatingStyle       String?
   caffeineIntake    String?
-  sugerIntake       String?
+  sugarIntake       String?
   workOutDaysInWeek Int?
   workoutType       String?
   
