@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,30 +8,31 @@ datasource db {
 }
 
 model User {
-  id               String          @id @default(auto()) @map("_id") @db.ObjectId
-  email            String          @unique
-  name             String?
-  gender           Gender?
-  weight           Int?   
-  location         String?     
-  role             Role            @default(USER)
-  status           Status          @default(PENDING)
-  password         String
-  referCode        String?
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  email             String   @unique
+  name              String?
+  gender            Gender?
+  weight            Int?
+  location          String?
+  role              Role     @default(USER)
+  status            Status   @default(PENDING)
+  password          String
+  referCode         String?
   //for AI
-  goal             String?
-  eatMeat          Boolean?  
+  goal              String?
+  eatMeat           Boolean?
   lactoseIntolerant Boolean?
-  anyAllergies      String[]     @default([])
+  anyAllergies      String[] @default([])
   eatingStyle       String?
   caffeineIntake    String?
   sugarIntake       String?
   workOutDaysInWeek Int?
   workoutType       String?
-  
 
   fcmToken         String?
   image            String?
+  connectAccountId String?
+  customerId       String?
   isVerified       Boolean         @default(false)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
@@ -51,7 +50,6 @@ model Otp {
 
   @@map("otps")
 }
-
 
 model Notifications {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -84,7 +82,7 @@ enum Status {
   BLOCKED
 }
 
-enum Gender{
+enum Gender {
   MALE
   FEMALE
   OTHER
