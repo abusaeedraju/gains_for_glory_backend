@@ -80,7 +80,7 @@ const changePasswordIntoDB = async (id: string, payload: any) => {
 const updateUserIntoDB = async (id: string, payload: any, image: any) => {
 
 
-    const userImage = await getImageUrl(image)
+    const userImage = image && await getImageUrl(image)
 
     try {
         const result = await prisma.user.update({
@@ -96,8 +96,8 @@ const updateUserIntoDB = async (id: string, payload: any, image: any) => {
 
         return updateDetails
 
-    } catch (error) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, "User not found")
+    } catch (error : any) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, error)
     }
 }
 
@@ -121,6 +121,13 @@ const getMyProfile = async (id: string) => {
 
     return result
 }
+const deleteProfile = async (id: string) => {
+    const result = await prisma.user.delete({
+        where: {
+            id
+        }
+    })
+    return result
+}
 
-
-export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile }
+export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile,deleteProfile }

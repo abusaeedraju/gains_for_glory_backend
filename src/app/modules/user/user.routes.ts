@@ -15,5 +15,6 @@ route.put('/change-password', auth(Role.USER || Role.ADMIN), validateRequest(Use
 
 route.put("/me", auth(Role.USER || Role.ADMIN), fileUploader.uploadProfileImage, parseBodyMiddleware, userController.updateUserController)//...
 route.get("/me", auth(), userController.getMyProfileController)//checked
+route.delete("/delete/me", auth(Role.USER), userController.deleteProfileController)//checked
 
 export const userRoutes = route
