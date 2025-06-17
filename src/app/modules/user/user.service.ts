@@ -8,6 +8,7 @@ import OTPVerify from "../../helper/OTPVerify";
 import { getImageUrl } from "../../helper/uploadFile";
 import { prisma } from "../../../utils/prisma";
 import { jwtHelpers } from "../../helper/jwtHelper";
+import { cartService } from "../cart/cart.service";
 
 const createUserIntoDB = async (payload: any) => {
 

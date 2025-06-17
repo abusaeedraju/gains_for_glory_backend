@@ -8,20 +8,20 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  email             String   @unique
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
+  email             String         @unique
   name              String?
   gender            Gender?
   location          String?
-  role              Role     @default(USER)
-  status            Status   @default(PENDING)
+  role              Role           @default(USER)
+  status            Status         @default(PENDING)
   password          String
   referCode         String?
   //for AI
   goal              String?
   eatMeat           Boolean?
   lactoseIntolerant Boolean?
-  anyAllergies      String[] @default([])
+  anyAllergies      String[]       @default([])
   eatingStyle       String?
   caffeineIntake    String?
   sugarIntake       String?
@@ -41,6 +41,8 @@ model User {
   updatedAt        DateTime        @updatedAt
   receiver         Notifications[] @relation("receiverDetails")
   sender           Notifications[] @relation("senderDetails")
+  reviews          Review[]
+  cart             Cart[]
 }
 
 model Otp {
@@ -54,17 +56,18 @@ model Otp {
   @@map("otps")
 }
 
+//for chatBot
 model Conversation {
-  id     String   @id @default(auto()) @map("_id") @db.ObjectId
-  user   User      @relation(fields: [userId], references: [id])
-  userId String   @db.ObjectId
-  messages Message[]
-  createdAt DateTime @default(now())
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @db.ObjectId
+  messages  Message[]
+  createdAt DateTime  @default(now())
 }
 
 model Message {
   id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id],onDelete:Cascade)
   conversationId String       @db.ObjectId
   sender         String
   content        String
@@ -72,16 +75,42 @@ model Message {
 }
 
 model Product {
-  id   String  @id @default(auto()) @map("_id")  @db.ObjectId
-  category  String    
-  name  String 
-  price Float
-  keyFeature String
-  productDetails String
-  productDescripotion String
-  image String
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  category           String
+  name               String
+  price              Float
+  keyFeature         String?
+  productDetails     String?
+  productDescription String?
+  size               String[]
+  image              Json[]
+  reviews            Review[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  Cart               Cart[]
 }
- 
+
+model Cart {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @db.ObjectId
+  productId      String   @db.ObjectId
+  user           User     @relation(fields: [userId], references: [id],onDelete:Cascade)
+  productDetails Product  @relation(fields: [productId], references: [id],onDelete:Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  productId String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id],onDelete:Cascade)
+  product   Product  @relation(fields: [productId], references: [id],onDelete:Cascade)
+  rating    Float
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 model Notifications {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -92,8 +121,8 @@ model Notifications {
   read       Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id])
-  sender     User?    @relation("senderDetails", fields: [senderId], references: [id])
+  receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id],onDelete:Cascade)
+  sender     User?    @relation("senderDetails", fields: [senderId], references: [id],onDelete:Cascade)
 }
 
 enum Role {
@@ -119,4 +148,3 @@ enum Gender {
   FEMALE
   OTHER
 }
-

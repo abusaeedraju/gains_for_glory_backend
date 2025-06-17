@@ -55,6 +55,7 @@ export const getImageUrl = async (file: Express.MulterS3.File) => {
 const uploadProfileImage = upload.single("profileImage");
 const uploadFoodImages = upload.single("foodImage");
 const serviceImage = upload.single("serviceImage");
+const uploadProductImages = upload.array("productImage");
 
 // Multiple image uploads
 
@@ -62,5 +63,6 @@ export const fileUploader = {
   upload,
   uploadProfileImage,
   uploadFoodImages,
-  serviceImage
+  serviceImage,
+  uploadProductImages
 };
