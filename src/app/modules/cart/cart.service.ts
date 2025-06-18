@@ -14,15 +14,15 @@ const getMyCartItem = async (userId: string) => {
 
     const result = await prisma.cart.findMany({
         where: { userId },
-        include : {
-            productDetails : {
-                select : {
-                    id : true,
-                    name : true,
-                    price : true,
-                    image : true,
-                    category : true,
-                    size : true,
+        include: {
+            productDetails: {
+                select: {
+                    id: true,
+                    name: true,
+                    price: true,
+                    image: true,
+                    category: true,
+                    size: true,
                 }
             }
         }
@@ -32,8 +32,12 @@ const getMyCartItem = async (userId: string) => {
     }
     return result
 }
+const deleteCartItem = async (id: string) => {
+    const result = await prisma.cart.delete({ where: { id } })
+    return result
 
+}
 
 export const cartService = {
-    addToCart, getMyCartItem
+    addToCart, getMyCartItem, deleteCartItem
 }

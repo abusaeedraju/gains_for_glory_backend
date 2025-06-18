@@ -43,6 +43,7 @@ model User {
   sender           Notifications[] @relation("senderDetails")
   reviews          Review[]
   cart             Cart[]
+  favorite         Favorite[]
 }
 
 model Otp {
@@ -67,7 +68,7 @@ model Conversation {
 
 model Message {
   id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  conversation   Conversation @relation(fields: [conversationId], references: [id],onDelete:Cascade)
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   conversationId String       @db.ObjectId
   sender         String
   content        String
@@ -75,7 +76,7 @@ model Message {
 }
 
 model Product {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
   category           String
   name               String
   price              Float
@@ -85,17 +86,28 @@ model Product {
   size               String[]
   image              Json[]
   reviews            Review[]
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
   Cart               Cart[]
+  favorite           Favorite[]
 }
 
 model Cart {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   userId         String   @db.ObjectId
   productId      String   @db.ObjectId
-  user           User     @relation(fields: [userId], references: [id],onDelete:Cascade)
-  productDetails Product  @relation(fields: [productId], references: [id],onDelete:Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productDetails Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Favorite {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @db.ObjectId
+  productId      String   @db.ObjectId
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productDetails Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -104,8 +116,8 @@ model Review {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
   productId String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id],onDelete:Cascade)
-  product   Product  @relation(fields: [productId], references: [id],onDelete:Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   rating    Float
   comment   String?
   createdAt DateTime @default(now())
@@ -121,8 +133,8 @@ model Notifications {
   read       Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id],onDelete:Cascade)
-  sender     User?    @relation("senderDetails", fields: [senderId], references: [id],onDelete:Cascade)
+  receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User?    @relation("senderDetails", fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 enum Role {

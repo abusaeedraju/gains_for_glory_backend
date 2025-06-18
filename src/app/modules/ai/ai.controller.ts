@@ -3,16 +3,23 @@ import catchAsync from "../../../shared/catchAsync";
 import { prisma } from "../../../utils/prisma";
 
 const submitToAi = catchAsync(async (req: any, res: any) => {
-    const { message, conversationId } = req.body;
+    const message = req.body;
+    const conversationId = req.body.conversationId;
     if (!message) return res.status(400).json({ error: "Message required" });
 
-    const aiRes = await fetch("http://10.0.10.37:8000/coach/chat", {
+    console.log("Input message: ",JSON.stringify(message));
+
+    
+    const aiRes = await fetch("https://gymapp-tukx.onrender.com/api/v1/coach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: message })
     });
+    console.log(aiRes);
     const data = await aiRes.json();
+    console.log("ERROR: ",data);
     const aiReply = data.reply;
+    //console.log("AI REPLY: ",aiReply);
     if (aiRes.status !== 200 || !aiReply) {
         return res.status(500).json({ error: data.error || "AI API error" });
     }
