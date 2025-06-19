@@ -5,6 +5,7 @@ import { aiRoutes } from "../modules/ai/ai.route"
 import { productRoutes } from "../modules/product/product.route"
 import { reviewRoutes } from "../modules/review/review.routes"
 import { cartRoutes } from "../modules/cart/cart.route"
+import { communityRoutes } from "../modules/community/community.route"
 
 const router = Router()
 const routes = [
@@ -31,6 +32,10 @@ const routes = [
     {
         path:"/cart",
         component:cartRoutes
+    },
+    {
+        path:"/community",
+        component:communityRoutes
     }
 ]
 

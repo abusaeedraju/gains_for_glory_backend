@@ -1,14 +1,10 @@
-import { User } from "@prisma/client";
+
 import ApiError from "../../error/ApiErrors";
 import { StatusCodes } from "http-status-codes";
 import { compare, hash } from "bcrypt"
-import jwt, { JwtPayload } from "jsonwebtoken"
 import { OTPFn } from "../../helper/OTPFn";
-import OTPVerify from "../../helper/OTPVerify";
 import { getImageUrl } from "../../helper/uploadFile";
 import { prisma } from "../../../utils/prisma";
-import { jwtHelpers } from "../../helper/jwtHelper";
-import { cartService } from "../cart/cart.service";
 
 const createUserIntoDB = async (payload: any) => {
 
@@ -29,20 +25,38 @@ const createUserIntoDB = async (payload: any) => {
     }
     const { confirmPassword, ...filteredPayload } = payload
     const newPass = await hash(filteredPayload.password, 10)
-
+    const referCode = Math.floor(Math.random() * 900000) + 100000
     const result = await prisma.user.create({
         data: {
             ...filteredPayload,
             password: newPass,
+            referCode: referCode
         },
         select: {
             id: true,
             email: true,
             role: true,
             status: true,
+            referCode: true,
             createdAt: true
         }
     })
+    //refer point calculate
+    const user = await prisma.user.findFirst({
+        where: {
+            referCode: payload.referBy
+        }
+    })
+    if (user) {
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                referPoint: user.referPoint + 100
+            }
+        })
+    }
     OTPFn(payload.email)
     return result
 }
@@ -93,34 +107,24 @@ const updateUserIntoDB = async (id: string, payload: any, image: any) => {
                 image: userImage ?? undefined
             }
         })
-        const {password,fcmToken, ...updateDetails} = result
+        const { password, fcmToken,connectAccountId,customerId, ...updateDetails } = result
 
         return updateDetails
 
-    } catch (error : any) {
+    } catch (error: any) {
         throw new ApiError(StatusCodes.BAD_REQUEST, error)
     }
 }
 
-
 const getMyProfile = async (id: string) => {
 
-    const result = await prisma.user.findUnique({
+    const result: any = await prisma.user.findUnique({
         where: {
             id
-        },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-            role: true,
-            createdAt: true,
-            updatedAt: true
         }
     })
-
-    return result
+    const { password, fcmToken,connectAccountId,customerId, ...updateDetails } = result
+    return updateDetails
 }
 const deleteProfile = async (id: string) => {
     const result = await prisma.user.delete({
@@ -131,4 +135,4 @@ const deleteProfile = async (id: string) => {
     return result
 }
 
-export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile,deleteProfile }
+export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile }

@@ -21,7 +21,8 @@ export const PrismaConnection = async () => {
                 name : "Admin",
                 role: "ADMIN",
                 status: "ACTIVE",
-                isVerified: true
+                isVerified: true,
+                referCode: 123456
             }
         })
         return

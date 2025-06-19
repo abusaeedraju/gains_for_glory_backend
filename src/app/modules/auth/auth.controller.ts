@@ -52,7 +52,7 @@ const forgetOtpVerifyController = catchAsync(async (req: Request, res: Response)
     data: result,
   });
 })
-
+ 
 
 const resendOtpController = catchAsync(async (req: Request, res: Response) => {
   const body = req.body;

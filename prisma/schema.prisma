@@ -8,15 +8,18 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(auto()) @map("_id") @db.ObjectId
-  email             String         @unique
-  name              String?
-  gender            Gender?
-  location          String?
-  role              Role           @default(USER)
-  status            Status         @default(PENDING)
-  password          String
-  referCode         String?
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  email      String  @unique
+  name       String?
+  gender     Gender?
+  location   String?
+  role       Role    @default(USER)
+  status     Status  @default(PENDING)
+  password   String
+  referCode  Int
+  referPoint Int     @default(0)
+  referBy    Int?
+
   //for AI
   goal              String?
   eatMeat           Boolean?
@@ -29,21 +32,27 @@ model User {
   workoutType       String?
   weight            Int?
   height            Int?
-  dateOfBirth       DateTime?
+  dateOfBirth       String?
   conversation      Conversation[]
 
-  fcmToken         String?
-  image            String?
-  connectAccountId String?
-  customerId       String?
-  isVerified       Boolean         @default(false)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  receiver         Notifications[] @relation("receiverDetails")
-  sender           Notifications[] @relation("senderDetails")
-  reviews          Review[]
-  cart             Cart[]
-  favorite         Favorite[]
+  fcmToken               String?
+  image                  String?
+  subscription           SubscriptionPlan @default(FREE)
+  bibleCommunityStatus   CommunityStatus  @default(NONE)
+  workoutCommunityStatus CommunityStatus  @default(NONE)
+  financeCommunityStatus CommunityStatus  @default(NONE)
+  connectAccountId       String?
+  customerId             String?
+  isVerified             Boolean          @default(false)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  receiver               Notifications[]  @relation("receiverDetails")
+  sender                 Notifications[]  @relation("senderDetails")
+  reviews                Review[]
+  cart                   Cart[]
+  favorite               Favorite[]
+  post                   Post[]
+  comment                Comment[]
 }
 
 model Otp {
@@ -124,6 +133,30 @@ model Review {
   updatedAt DateTime @updatedAt
 }
 
+model Post {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  body      String
+  category  Community
+  like      Int       @default(0)
+  userId    String    @db.ObjectId
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentId String?    @db.ObjectId
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  comment   Comment[]
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  comment   String
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String   @db.ObjectId
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Notifications {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   receiverId String   @db.ObjectId
@@ -159,4 +192,23 @@ enum Gender {
   MALE
   FEMALE
   OTHER
+}
+
+enum Community {
+  BIBLE
+  WORKOUT
+  FINANCE
+}
+
+enum CommunityStatus {
+  NONE
+  PENDING
+  APPROVED
+  BLOCKED
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PREMIUM
 }
