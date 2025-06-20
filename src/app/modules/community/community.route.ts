@@ -6,12 +6,11 @@ import { communityController } from "./community.controller";
 const router = Router();
 
 router.get("/", auth(Role.USER), communityController.getCommunityController);
-router.get("/bible-request", auth(Role.ADMIN), communityController.getBibleCommunityRequestController);
-router.get("/workout-request", auth(Role.ADMIN), communityController.getWorkoutCommunityRequestController);
-router.get("/finance-request", auth(Role.ADMIN), communityController.getFinanceCommunityRequestController);
-router.put("/accept/bible-request", auth(Role.ADMIN), communityController.acceptBibleCommunityRequestController);
-router.put("/accept/workout-request", auth(Role.ADMIN), communityController.acceptWorkoutCommunityRequestController);
-router.put("/accept/finance-request", auth(Role.ADMIN), communityController.acceptFinanceCommunityRequestController);
+router.get("/request", auth(Role.ADMIN), communityController.getCommunityRequestController);
+router.put("/accept-request", auth(Role.ADMIN), communityController.acceptCommunityRequestController);
+router.put("/block-request", auth(Role.ADMIN), communityController.blockCommunityRequestController);
 router.post("/post-create", auth(Role.USER), communityController.createPostController);
+router.get("/posts", auth(Role.USER), communityController.getCommunityPostsController);
+router.get("/posts/user", auth(Role.USER), communityController.getCommunityPostByUserIdController);
 
 export const communityRoutes = router;

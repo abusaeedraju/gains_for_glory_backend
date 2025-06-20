@@ -16,10 +16,43 @@ const getCommunityController = catchAsync(async (req: Request, res: Response) =>
     });
 });
 
+const getCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
+    const type = req.query.type
+    const communityData = await communityServices.getCommunityRequest(type as string);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Bible Community data retrieved successfully",
+        data: communityData,
+        success: true,
+    });
+})
+
+const acceptCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
+
+    const { id, communityName } = req.query
+    const communityData = await communityServices.acceptRequest(id as string, communityName as string);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Request accepted successfully",
+        data: communityData,
+        success: true,
+    })
+})
+const blockCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
+    const { id, communityName } = req.query
+    const communityData = await communityServices.blockRequest(id as string, communityName as string);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Request blocked successfully",
+        data: communityData,
+        success: true,
+    })
+})
 const createPostController = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.user;
+    const category = req.query.category as string
     const payload = req.body
-    const communityData = await communityServices.createPost(id, payload);
+    const communityData = await communityServices.createPost(id, category, payload);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         message: "Post created successfully",
@@ -28,42 +61,25 @@ const createPostController = catchAsync(async (req: Request, res: Response) => {
     });
 })
 
-const getBibleCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
-    const communityData = await communityServices.getCommunityRequest("BIBLE");
+const getCommunityPostsController = catchAsync(async (req: Request, res: Response) => {
+    const { communityName } = req.query
+    const communityData = await communityServices.getCommunityPosts(communityName as string);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
-        message: "Bible Community data retrieved successfully",
+        message: "Posts retrieved successfully",
         data: communityData,
         success: true,
     });
 })
-
-const getWorkoutCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
-    const communityData = await communityServices.getCommunityRequest("WORKOUT");
+const getCommunityPostByUserIdController = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const { communityName } = req.query
+    const communityData = await communityServices.getCommunityPostByUserId(id,communityName as string);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
-        message: "Bible Community data retrieved successfully",
+        message: "Posts retrieved successfully",
         data: communityData,
         success: true,
     });
 })
-
-const getFinanceCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
-    const communityData = await communityServices.getCommunityRequest("FINANCE");
-    sendResponse(res, {
-        statusCode: StatusCodes.OK,
-        message: "Bible Community data retrieved successfully",
-        data: communityData,
-        success: true,
-    });
-})
-
-const acceptBibleCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
-    
-})
-const acceptWorkoutCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
-})
-const acceptFinanceCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
-    
-})
-export const communityController = { getCommunityController,createPostController,getBibleCommunityRequestController,getWorkoutCommunityRequestController,getFinanceCommunityRequestController , acceptBibleCommunityRequestController,acceptWorkoutCommunityRequestController,acceptFinanceCommunityRequestController}  
+export const communityController = { getCommunityController, createPostController, acceptCommunityRequestController, getCommunityRequestController, blockCommunityRequestController,getCommunityPostsController,getCommunityPostByUserIdController }  
