@@ -82,4 +82,66 @@ const getCommunityPostByUserIdController = catchAsync(async (req: Request, res: 
         success: true,
     });
 })
-export const communityController = { getCommunityController, createPostController, acceptCommunityRequestController, getCommunityRequestController, blockCommunityRequestController,getCommunityPostsController,getCommunityPostByUserIdController }  
+const editPostController = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const { postId } = req.params
+    const payload = req.body
+    const communityData = await communityServices.editPost(id, postId, payload);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Post updated successfully",
+        data: communityData,
+        success: true,
+    });
+})
+const deletePostController = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const { postId } = req.params
+    const communityData = await communityServices.deletePost(id, postId);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Post deleted successfully",
+        data: communityData,
+        success: true,
+    });
+})
+const createCommentController = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const { postId } = req.params
+    const payload = req.body
+    const communityData = await communityServices.createComment(id, postId, payload);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Comment created successfully",
+        data: communityData,
+        success: true,
+    });
+})
+
+const editCommentController = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const { commentId } = req.params
+    const payload = req.body
+    const communityData = await communityServices.editComment(id, commentId, payload);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Comment updated successfully",
+        data: communityData,
+        success: true,
+    });
+})
+
+const deleteCommentController = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.user;
+    const { commentId } = req.params
+    const communityData = await communityServices.deleteComment(id, commentId);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Comment deleted successfully",
+        data: communityData,
+        success: true,
+    });
+})
+
+
+export const communityController = { getCommunityController, createPostController, acceptCommunityRequestController, getCommunityRequestController, blockCommunityRequestController,getCommunityPostsController,getCommunityPostByUserIdController,editPostController,deletePostController,createCommentController,editCommentController,deleteCommentController }  
