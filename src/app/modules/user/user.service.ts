@@ -134,5 +134,51 @@ const deleteProfile = async (id: string) => {
     })
     return result
 }
+const getMyReferCode = async (id: string) => {
 
-export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile }
+    const result: any = await prisma.user.findUnique({
+        where: {
+            id
+        },
+        select: {
+            referCode: true
+        }
+    })
+    return result
+}
+
+const getAllUsers = async () => {
+    const result = await prisma.user.findMany()
+    return result
+}
+const getFreeUsers = async () => {
+    const result = await prisma.user.findMany({
+        where: {
+            subscription: "FREE"
+        }
+    })
+    return result
+}
+const getPremiumUsers = async () => {
+    const result = await prisma.user.findMany({
+        where: {
+            subscription: "PREMIUM"
+        }
+    })
+    if (result.length === 0) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "No Premium users exist")
+    }
+    return result
+}
+const getBasicUsers = async () => {
+    const result = await prisma.user.findMany({
+        where: {
+            subscription: "BASIC"
+        }
+    })
+    if(result.length === 0){
+        throw new ApiError(StatusCodes.NOT_FOUND, "No Basic users exist")
+    }
+    return result
+}
+export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile,getMyReferCode ,getAllUsers,getFreeUsers,getPremiumUsers,getBasicUsers}
