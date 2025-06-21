@@ -14,8 +14,5 @@ router.get("/posts", auth(Role.USER), communityController.getCommunityPostsContr
 router.get("/posts/user", auth(Role.USER), communityController.getCommunityPostByUserIdController);
 router.put("/post-edit/:postId", auth(Role.USER), communityController.editPostController);
 router.delete("/post-delete/:postId", auth(Role.USER), communityController.deletePostController);
-router.post("/comment-create/:postId", auth(Role.USER), communityController.createCommentController);
-router.put("/comment-edit/:commentId", auth(Role.USER), communityController.editCommentController);
-router.delete("/comment-delete/:commentId", auth(Role.USER), communityController.deleteCommentController);
 
 export const communityRoutes = router;

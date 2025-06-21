@@ -1,26 +1,11 @@
 
+import { error } from "console";
 import { prisma } from "../../../utils/prisma"
 import ApiError from "../../error/ApiErrors";
 import { StatusCodes } from "http-status-codes";
+import{isValidCommunityUser} from "../../helper/isValidCommunityUser"
 
-/* const isValidUser = async (userId: string) => {
-    if (!userId) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
-    }
-   try {
-     const result = await prisma.user.findUnique({
-        where: { id: userId },
-    })
-console.log("result",result)
-    if (result?.bibleCommunityStatus !== "APPROVED" || result?.workoutCommunityStatus !== "APPROVED" || result?.financeCommunityStatus !== "APPROVED") {
-        return false
-    }
-
-    return true
-   } catch (error) {
-    throw new ApiError(StatusCodes.NOT_FOUND, "you are not allowed to create post, join community first")
-   }
-} */
+  
 const getCommunity = async (userId: string) => {
     if (!userId) {
         throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
@@ -182,33 +167,14 @@ const blockRequest = async (userId: string, typeStr: string) => {
     return result
 }
 const createPost = async (userId: string, category: string, payload: any) => {
-   
-       /*  const user= await  isValidUser(userId)
-        console.log("user",user)
-        if (!user) {
-            throw new ApiError(StatusCodes.NOT_FOUND, "you are not allowed to create post, join community first")
-        } */
-    const result = await prisma.user.findUnique({
-        where: { id: userId },
-    })
 
-    if (result?.bibleCommunityStatus !== "APPROVED" || result?.workoutCommunityStatus !== "APPROVED" || result?.financeCommunityStatus !== "APPROVED") {
-        throw new ApiError(StatusCodes.NOT_FOUND, "you are not allowed to create post, join community first")
-    }
+    const user = await isValidCommunityUser(userId, category)
 
-    if (!category) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "Community Name is required")
-    }
-
-    const cate = category.toUpperCase()
-    if (cate !== "BIBLE" && cate !== "WORKOUT" && cate !== "FINANCE") {
-        throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid community name")
-    }
 
     const post = await prisma.post.create({
         data: {
             userId: userId,
-            category: cate,
+            category: category.toUpperCase(),
             ...payload
         },
     });
@@ -289,14 +255,18 @@ const editPost = async (userId: string, postId: string, payload: any) => {
     if (!postId) {
         throw new ApiError(StatusCodes.NOT_FOUND, "PostId not found")
     }
-    const result = await prisma.post.update({
-        where: {
-            id: postId,
-            userId: userId
-        },
-        data: payload,
-    })
-    return result
+    try {
+        const result = await prisma.post.update({
+            where: {
+                id: postId,
+                userId: userId
+            },
+            data: payload,
+        })
+        return result
+    } catch (error) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "post not found")
+    }
 }
 const deletePost = async (userId: string, postId: string) => {
     if (!userId) {
@@ -305,81 +275,18 @@ const deletePost = async (userId: string, postId: string) => {
     if (!postId) {
         throw new ApiError(StatusCodes.NOT_FOUND, "PostId not found")
     }
-    const result = await prisma.post.delete({
-        where: {
-            id: postId,
-            userId: userId
-        }
-    })
-    return result
+    try {
+        const result = await prisma.post.delete({
+            where: {
+                id: postId,
+                userId: userId
+            }
+        })
+        return result
+    } catch (error) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "post not found")
+    }
 }
 
-const createComment = async (userId: string, postId: string, payload: any) => {
-    if (!userId) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
-    }
-    if (!postId) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "PostId not found")
-    }
 
-    const user = await prisma.user.findUnique({
-        where: {
-            id: userId
-        }
-    })
-
-    if (user?.bibleCommunityStatus !== "APPROVED" || user?.workoutCommunityStatus !== "APPROVED" || user?.financeCommunityStatus !== "APPROVED") {
-        throw new ApiError(StatusCodes.NOT_FOUND, "you are not allowed to create comment, join community first")
-    }
-    const comment = await prisma.comment.findFirst({
-        where: {
-            userId: userId,
-            postId: postId
-        }
-    })
-    if (comment) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, "You have already commented on this post")
-    }
-    const result = await prisma.comment.create({
-        data: {
-            userId: userId,
-            postId: postId,
-            ...payload
-        },
-    });
-    return result
-}
-
-const editComment = async (userId: string, commentId: string, payload: any) => {
-    if (!userId) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
-    }
-    if (!commentId) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "CommentId not found")
-    }
-    const result = await prisma.comment.update({
-        where: {
-            id: commentId,
-            userId: userId
-        },
-        data: payload,
-    })
-    return result
-}
-const deleteComment = async (userId: string, commentId: string) => {
-    if (!userId) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
-    }
-    if (!commentId) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "CommentId not found")
-    }
-
-    const result = await prisma.comment.delete({
-        where: {
-            id: commentId,
-            userId: userId
-        }
-    })
-    return result
-}
-export const communityServices = { getCommunity, createPost, getCommunityRequest, acceptRequest, blockRequest, getCommunityPosts, getCommunityPostByUserId, editPost, deletePost, createComment, editComment, deleteComment }
+export const communityServices = { getCommunity, createPost, getCommunityRequest, acceptRequest, blockRequest, getCommunityPosts, getCommunityPostByUserId, editPost, deletePost,isValidCommunityUser }

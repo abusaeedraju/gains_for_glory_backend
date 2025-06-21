@@ -6,6 +6,8 @@ import { productRoutes } from "../modules/product/product.route"
 import { reviewRoutes } from "../modules/review/review.routes"
 import { cartRoutes } from "../modules/cart/cart.route"
 import { communityRoutes } from "../modules/community/community.route"
+import { likeRoutes } from "../modules/like/like.routes"
+import { commentRoutes } from "../modules/comment/comment.routes"
 
 const router = Router()
 const routes = [
@@ -36,6 +38,14 @@ const routes = [
     {
         path:"/community",
         component:communityRoutes
+    },
+    {
+        path:"/community",
+        component:commentRoutes
+    },
+    {
+        path:"/community",
+        component:likeRoutes
     }
 ]
 
