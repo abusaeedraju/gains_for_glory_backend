@@ -30,8 +30,8 @@ model User {
   sugarIntake       String?
   workOutDaysInWeek Int?
   workoutType       String?
-  weight            Int?
-  height            Int?
+  weight            Float?
+  height            Float?
   dateOfBirth       String?
   conversation      Conversation[]
 
