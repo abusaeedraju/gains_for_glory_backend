@@ -51,8 +51,9 @@ const blockCommunityRequestController = catchAsync(async (req: Request, res: Res
 const createPostController = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.user;
     const category = req.query.category as string
-    const payload = req.body
-    const communityData = await communityServices.createPost(id, category, payload);
+    const payload = req.body 
+    const image = req.file as any
+    const communityData = await communityServices.createPost(id, category, payload, image);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         message: "Post created successfully",

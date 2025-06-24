@@ -28,6 +28,16 @@ const updateProductController = catchAsync(async (req: Request, res: Response) =
         success: true,
     });
 })
+const getSingleProductController = catchAsync(async (req: Request, res: Response) => {
+    const productId = req.params.productId
+    const result = await productServices.getSingleProduct(productId);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Product retrieved successfully",
+        data: result,
+        success: true,
+    });
+})
 const getAllProductsController = catchAsync(async (req: Request, res: Response) => {
     const result = await productServices.getAllProducts();
     sendResponse(res, {
@@ -77,6 +87,7 @@ const addToFavoritesController = catchAsync(async (req: Request, res: Response) 
     });
 })
 const getMyFavoritesController = catchAsync(async (req: Request, res: Response) => {
+
     const { id } = req.user
     const result = await productServices.getMyFavorites(id)
     sendResponse(res, {
@@ -98,5 +109,5 @@ const deleteFavoriteController = catchAsync(async (req: Request, res: Response) 
     });
 })
 export const productController = {
-    createProductController, getAllProductsController, getSupplementsProductsController, getMerchandiseProductsController, addToFavoritesController, getMyFavoritesController, deleteFavoriteController, updateProductController, deleteProductController
+    createProductController,getSingleProductController, getAllProductsController, getSupplementsProductsController, getMerchandiseProductsController, addToFavoritesController, getMyFavoritesController, deleteFavoriteController, updateProductController, deleteProductController
 }

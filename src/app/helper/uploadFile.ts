@@ -37,7 +37,7 @@ const imageFilter = (req: any, file: any, cb: any) => {
 const upload = multer(
   {
     storage: s3Storage,
-    fileFilter: imageFilter, // Apply image filter 
+   /*  fileFilter: imageFilter, */ // Apply image filter 
   },
 
 );
@@ -56,6 +56,7 @@ const uploadProfileImage = upload.single("profileImage");
 const uploadFoodImages = upload.single("foodImage");
 const serviceImage = upload.single("serviceImage");
 const uploadProductImages = upload.array("productImage");
+const uploadPostImages = upload.single("postImage");
 
 // Multiple image uploads
 
@@ -64,5 +65,6 @@ export const fileUploader = {
   uploadProfileImage,
   uploadFoodImages,
   serviceImage,
-  uploadProductImages
+  uploadProductImages,
+  uploadPostImages
 };

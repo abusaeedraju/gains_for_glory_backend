@@ -96,6 +96,8 @@ model Product {
   size               String[]
   image              Json[]
   reviews            Review[]
+/*   avgReview          Float     @default(0)
+  totalReview        Int       @default(0) */
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
   Cart               Cart[]
@@ -138,6 +140,7 @@ model Post {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   body      String
   category  Community
+  image      String? 
   totalLike Int    @default(0)
   userId    String    @db.ObjectId
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -4,6 +4,7 @@ import { prisma } from "../../../utils/prisma"
 import ApiError from "../../error/ApiErrors";
 import { StatusCodes } from "http-status-codes";
 import{isValidCommunityUser} from "../../helper/isValidCommunityUser"
+import { getImageUrl } from './../../helper/uploadFile';
 
   
 const getCommunity = async (userId: string) => {
@@ -166,14 +167,14 @@ const blockRequest = async (userId: string, typeStr: string) => {
     })
     return result
 }
-const createPost = async (userId: string, category: string, payload: any) => {
-
+const createPost = async (userId: string, category: string, payload: any, image: any) => {
+const imageUrl = image && await getImageUrl(image)
     const user = await isValidCommunityUser(userId, category)
-
 
     const post = await prisma.post.create({
         data: {
             userId: userId,
+            image: imageUrl,
             category: category.toUpperCase(),
             ...payload
         },
@@ -239,6 +240,7 @@ const getCommunityPostByUserId = async (userId: any, communityName: any) => {
             body: true,
             like: true,
             comment: true,
+            image: true,
             createdAt: true,
             updatedAt: true,
         },

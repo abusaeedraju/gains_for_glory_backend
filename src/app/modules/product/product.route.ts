@@ -10,12 +10,15 @@ router.post('/create',auth(Role.ADMIN),fileUploader.uploadProductImages,parseBod
 router.put('/update/:productId',auth(Role.ADMIN),fileUploader.uploadProductImages,parseBodyMiddleware,productController.updateProductController)
 
 router.delete('/delete/:productId',auth(Role.ADMIN),productController.deleteProductController)
+
+router.get('/favorite',auth(),productController.getMyFavoritesController)
+
 router.get('/all',auth(),productController.getAllProductsController)
 router.get('/supplements',auth(),productController.getSupplementsProductsController)
 router.get('/merchandise',auth(),productController.getMerchandiseProductsController)
+router.get('/:productId',auth(),productController.getSingleProductController)
 
 router.post('/favorite/:productId',auth(),productController.addToFavoritesController)
-router.get('/favorite',auth(),productController.getMyFavoritesController)
 router.delete('/favorite/:productId',auth(),productController.deleteFavoriteController)
 
 export const productRoutes = router;

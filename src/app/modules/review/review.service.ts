@@ -10,15 +10,30 @@ const createReview = async (id: string, payload: any) => {
     }
     const result = await prisma.review.create({ data: { ...payload, userId: id } })
     return result
-
 };
-const getAllReview = async (productId : string) => {
-    const result = await prisma.review.findMany( { where: { productId } })
-    if(result.length === 0){
+const getAllReview = async (productId: string) => {
+    const result = await prisma.review.findMany({ where: { productId } })
+    if (result.length === 0) {
         throw new ApiError(StatusCodes.NOT_FOUND, "Review not found")
     }
-    return result
+
+    const averageRating = await prisma.review.aggregate({
+        where: {
+            productId: productId, // replace with actual product ID
+        },
+        _avg: {
+            rating: true,
+        },
+        _count: {
+            rating: true,
+        }
+    });
+    const avgRating = averageRating._avg.rating
+    const totalRating = averageRating._count.rating
+    // console.log("Average Rating:", averageRating._avg.rating, "Count:", averageRating._count.rating);
+
+    return { result, avgRating, totalRating }
 }
 export const reviewService = {
-    createReview,getAllReview
+    createReview, getAllReview
 };  
