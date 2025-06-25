@@ -205,8 +205,16 @@ const getCommunityPosts = async (communityName: any) => {
             body: true,
             like: true,
             comment: true,
+            image: true,
             createdAt: true,
             updatedAt: true,
+            user : {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                }
+            }
         },
     })
     if (posts.length === 0) {
@@ -243,6 +251,13 @@ const getCommunityPostByUserId = async (userId: any, communityName: any) => {
             image: true,
             createdAt: true,
             updatedAt: true,
+            user : {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                }
+            }
         },
     })
     if (posts.length === 0) {

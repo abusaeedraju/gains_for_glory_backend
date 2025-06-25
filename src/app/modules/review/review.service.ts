@@ -30,7 +30,6 @@ const getAllReview = async (productId: string) => {
     });
     const avgRating = averageRating._avg.rating
     const totalRating = averageRating._count.rating
-    // console.log("Average Rating:", averageRating._avg.rating, "Count:", averageRating._count.rating);
 
     return { result, avgRating, totalRating }
 }
