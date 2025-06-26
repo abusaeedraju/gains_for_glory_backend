@@ -23,11 +23,29 @@ const updateProduct = async (id: string, payload: any, imageFiles: any[]) => {
     return result
 }
 const getSingleProduct = async (id: string) => {
-    const result = await prisma.product.findUnique({ where: { id }, include: { reviews: true } })
+    const result = await prisma.product.findUnique({
+        where: { id },
+        include:
+        {
+            reviews:
+            {
+                include:
+                {
+                    user: {
+                        select: {
+                            name: true,
+                            image: true
+                        }
+                    }
+                }
+            }
+        }
+    })
     if (!result) {
-        throw new ApiError(404, "Product not found")
+        throw new ApiError(StatusCodes.NOT_FOUND, "Product not found")
     }
     const { avgRating, totalRating } = await reviewService.getAllReview(id)
+
     return { result, avgRating, totalRating }
 }
 const getAllProducts = async () => {
@@ -49,7 +67,7 @@ const getAllProducts = async () => {
         }
     })
     if (products.length === 0) {
-        throw new ApiError(404, "Products not found")
+        throw new ApiError(StatusCodes.NOT_FOUND, "Products not found")
     }
 
     const ratingsMap = new Map(
@@ -86,7 +104,7 @@ const getMerchandiseProducts = async () => {
         include: {
             reviews: {
                 include: {
-                    user:{
+                    user: {
                         select: {
                             name: true,
                             image: true
@@ -123,14 +141,14 @@ const getSupplementsProducts = async () => {
         },
     });
 
-     const products = await prisma.product.findMany({
+    const products = await prisma.product.findMany({
         where: {
             category: "supplements"
         },
         include: {
             reviews: {
                 include: {
-                    user:{
+                    user: {
                         select: {
                             name: true,
                             image: true
