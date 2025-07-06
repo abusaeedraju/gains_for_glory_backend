@@ -7,7 +7,8 @@ import { cartRoutes } from "../modules/cart/cart.route"
 import { communityRoutes } from "../modules/community/community.route"
 import { likeRoutes } from "../modules/like/like.routes"
 import { commentRoutes } from "../modules/comment/comment.routes"
-
+import { mealPlanRoutes } from "../modules/mealPlan/meal.route" 
+import { addressRoutes } from "../modules/address/address.route"
 const router = Router()
 const routes = [
     {
@@ -41,6 +42,14 @@ const routes = [
     {
         path:"/like",
         component:likeRoutes
+    },
+    {
+        path:"/mealPlan",
+        component:mealPlanRoutes
+    },
+    {
+        path:"/address",
+        component:addressRoutes
     }
 ]
 

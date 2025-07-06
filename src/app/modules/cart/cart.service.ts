@@ -3,10 +3,6 @@ import ApiError from "../../error/ApiErrors"
 import { StatusCodes } from "http-status-codes"
 
 const addToCart = async (payload: any, userId: string,productId:string) => {
-    const isExit = await prisma.cart.findFirst({ where: { userId, productId } })
-    if (isExit) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, "Product already exists in cart")
-    }
     const result = await prisma.cart.create({ data: { ...payload, userId,productId } })
     return result
 }
