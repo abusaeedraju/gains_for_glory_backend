@@ -18,10 +18,20 @@ const createProduct = async (payload: any, imageFiles: any[]) => {
     return result;
 };
 const updateProduct = async (id: string, payload: any, imageFiles: any[]) => {
+  const data: any = { ...payload };
+
+  if (imageFiles && imageFiles.length > 0) {
     const imageUrls: string[] = imageFiles.map(file => file.location);
-    const result = await prisma.product.update({ where: { id }, data: { ...payload, image: imageUrls } })
-    return result
-}
+    data.image = imageUrls;
+  }
+
+  const result = await prisma.product.update({
+    where: { id },
+    data,
+  });
+
+  return result;
+};
 const getSingleProduct = async (id: string) => {
     const result = await prisma.product.findUnique({
         where: { id },
@@ -67,7 +77,7 @@ const getAllProducts = async () => {
         }
     })
     if (products.length === 0) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "Products not found")
+        return []   
     }
 
     const ratingsMap = new Map(
@@ -115,7 +125,7 @@ const getMerchandiseProducts = async () => {
         },
     })
     if (products.length === 0) {
-        throw new ApiError(404, "Products not found")
+        return []
     }
     const ratingsMap = new Map(
         ratings.map(r => [r.productId, { avg: r._avg.rating, count: r._count.rating }])
@@ -159,7 +169,7 @@ const getSupplementsProducts = async () => {
         },
     })
     if (products.length === 0) {
-        throw new ApiError(404, "Products not found")
+        return []
     }
 
     const ratingsMap = new Map(

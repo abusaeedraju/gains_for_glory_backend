@@ -13,9 +13,6 @@ const createReview = async (id: string, payload: any) => {
 };
 const getAllReview = async (productId: string) => {
     const result = await prisma.review.findMany({ where: { productId } })
-    if (result.length === 0) {
-        throw new ApiError(StatusCodes.NOT_FOUND, "Review not found")
-    }
 
     const averageRating = await prisma.review.aggregate({
         where: {
