@@ -72,5 +72,33 @@ const deleteComment = async (userId: string, commentId: string) => {
     }
 }
 
+const getCommentByPostId = async (postId: string) => {
+    if (!postId) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "please provide a valid postId")
+    }
+    const result = await prisma.comment.findMany({
+        where: {
+            postId: postId
+        },
+        select: {
+            id: true,
+            comment: true,
+            createdAt: true,
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                }
+            }
+        },
+    })
+    const count = await prisma.comment.count({
+        where: {
+            postId: postId
+        }
+    })
+    return {result,"Total Comments":count}
+}
 
-export const commentServices = { createComment, editComment, deleteComment }
+export const commentServices = { createComment, editComment, deleteComment, getCommentByPostId }

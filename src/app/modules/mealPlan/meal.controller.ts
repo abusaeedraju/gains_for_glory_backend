@@ -62,11 +62,33 @@ const deleteMealPlanController = catchAsync(async (req: Request, res: Response) 
     });
 })
 
+const aiMealPlanController = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id
+    const result = await mealPlanService.aiMealPlan(userId);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Meal plan retrieved successfully",
+        data: result,
+        success: true,
+    });
+})
 
+const aiFoodScannerController = catchAsync(async (req: Request, res: Response) => {
+    const image = req.file as any
+    const result = await mealPlanService.aiFoodScanner(image);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Meal plan retrieved successfully",
+        data: result,
+        success: true,
+    });
+})
 export const mealPlanController = {
     createMealPlanController,
     getMealPlanController,
     updateMealPlanController,
     deleteMealPlanController,
-    getMealPlanByIdController
+    getMealPlanByIdController,
+    aiMealPlanController,
+    aiFoodScannerController 
 }

@@ -11,5 +11,7 @@ router.get("/my-meal/", auth(Role.USER,Role.TECHNICIAN),mealPlanController.getMe
 router.get("/meal/:id", auth(Role.USER,Role.TECHNICIAN),mealPlanController.getMealPlanByIdController)
 router.put("/update/:id", auth(Role.USER,Role.TECHNICIAN),fileUploader.uploadFoodImages,parseBodyMiddleware,mealPlanController.updateMealPlanController)
 router.delete("/delete/:id", auth(Role.USER,Role.TECHNICIAN),mealPlanController.deleteMealPlanController)
+router.get("/ai-meal", auth(Role.USER,Role.TECHNICIAN),mealPlanController.aiMealPlanController)
+router.post("/ai-food-scanner", auth(Role.USER,Role.TECHNICIAN),fileUploader.uploadFoodScannerImages, parseBodyMiddleware,mealPlanController.aiFoodScannerController)
 
 export const mealPlanRoutes = router;   

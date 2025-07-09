@@ -232,13 +232,12 @@ const getMyChat = async (userId: string) => {
     include: {
       messages: {
         orderBy: { createdAt: "desc" },
-        take: 1,
       },
     },
   });
 
   const chatList = await Promise.all(
-    result.map(async (conversation) => {
+    result.map(async (conversation, index) => {
       const lastMessage = conversation.messages[0];
       const targetUserId =
         conversation.user1Id === userId
@@ -255,11 +254,16 @@ const getMyChat = async (userId: string) => {
         },
       });
 
+      const numberOfUnreadMessages = conversation.messages.map((message) => {
+        return countUnreadMessages(userId, message.conversationId);
+      });
+
       return {
         conversationId: conversation.id,
         user: targetUserProfile || null,
         lastMessage: lastMessage ? lastMessage.content : null,
         lastMessageDate: lastMessage ? lastMessage.createdAt : null,
+        numberOfUnreadMessages: numberOfUnreadMessages[index],
       };
     })
   );
@@ -291,9 +295,8 @@ const getMyChat = async (userId: string) => {
 // };
  */
 const chatWithAI = async (payload: any, id: string) => {
-  console.log(payload, "payload");
 
-  const response = await fetch("http://203.161.49.8:5019/chat", {
+  const response = await fetch("https://gymapp-tukx.onrender.com/api/v1/coach", {
     method: "POST",
     headers: {
       "Content-Type": "application/json", // 👈 Required for JSON payload
@@ -301,9 +304,6 @@ const chatWithAI = async (payload: any, id: string) => {
     body: JSON.stringify(payload),
   });
   const data = await response.json();
-  console.log(data);
-
-  
 
   return data;
 };

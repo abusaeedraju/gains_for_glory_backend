@@ -106,4 +106,13 @@ const deletePostController = catchAsync(async (req: Request, res: Response) => {
         success: true,
     });
 })
-export const communityController = { getCommunityController, createPostController, acceptCommunityRequestController, getCommunityRequestController, blockCommunityRequestController,getCommunityPostsController,getCommunityPostByUserIdController,editPostController,deletePostController }  
+const getCommunityUsersController = catchAsync(async (req: Request, res: Response) => {
+    const communityData = await communityServices.getCommunityUsers();
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Community users retrieved successfully",
+        data: communityData,
+        success: true,
+    });
+})  
+export const communityController = { getCommunityController, createPostController, acceptCommunityRequestController, getCommunityRequestController, blockCommunityRequestController,getCommunityPostsController,getCommunityPostByUserIdController,editPostController,deletePostController,getCommunityUsersController }  

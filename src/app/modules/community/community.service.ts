@@ -1,5 +1,4 @@
 
-import { error } from "console";
 import { prisma } from "../../../utils/prisma"
 import ApiError from "../../error/ApiErrors";
 import { StatusCodes } from "http-status-codes";
@@ -203,8 +202,6 @@ const getCommunityPosts = async (communityName: any) => {
             userId: true,
             category: true,
             body: true,
-            like: true,
-            comment: true,
             image: true,
             createdAt: true,
             updatedAt: true,
@@ -214,8 +211,15 @@ const getCommunityPosts = async (communityName: any) => {
                     name: true,
                     image: true,
                 }
-            }
+            },
+            _count: {
+                select: {
+                    comment: true,
+                    like: true
+                }
+            }    
         },
+        
     })
     if (posts.length === 0) {
         throw new ApiError(StatusCodes.NOT_FOUND, "Posts not found")
@@ -246,8 +250,6 @@ const getCommunityPostByUserId = async (userId: any, communityName: any) => {
             userId: true,
             category: true,
             body: true,
-            like: true,
-            comment: true,
             image: true,
             createdAt: true,
             updatedAt: true,
@@ -256,6 +258,12 @@ const getCommunityPostByUserId = async (userId: any, communityName: any) => {
                     id: true,
                     name: true,
                     image: true,
+                }
+            },
+            _count: {
+                select: {
+                    comment: true,
+                    like: true
                 }
             }
         },
@@ -305,5 +313,17 @@ const deletePost = async (userId: string, postId: string) => {
     }
 }
 
+const getCommunityUsers = async (   ) => {
+    const bibleUsers = await prisma.user.count({
+        where: {bibleCommunityStatus: "APPROVED" },
+    })
+    const workoutUsers = await prisma.user.count({
+        where: {workoutCommunityStatus: "APPROVED" },
+    })
+    const financeUsers = await prisma.user.count({
+        where: {financeCommunityStatus: "APPROVED" },
+    })
+    return {"bibleUsers":bibleUsers,"workoutUsers":workoutUsers,"financeUsers":financeUsers}
+}
 
-export const communityServices = { getCommunity, createPost, getCommunityRequest, acceptRequest, blockRequest, getCommunityPosts, getCommunityPostByUserId, editPost, deletePost,isValidCommunityUser }
+export const communityServices = { getCommunity, createPost, getCommunityRequest, acceptRequest, blockRequest, getCommunityPosts, getCommunityPostByUserId, editPost, deletePost,isValidCommunityUser, getCommunityUsers }

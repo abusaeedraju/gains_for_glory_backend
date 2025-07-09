@@ -1,5 +1,12 @@
 import { prisma } from "../../../utils/prisma"
 import { getImageUrl } from "../../helper/uploadFile"
+import fetch from "node-fetch";
+import fs from "fs";
+import path from "path";
+import FormData from "form-data";
+import { v4 as uuidv4 } from "uuid";
+
+
 
 const createMealPlan = async (payload: any, image: any, userId: string) => {
     const imageUrl = image && await getImageUrl(image)
@@ -39,10 +46,76 @@ const deleteMealPlan = async (id: string, userId: string) => {
     return result
 }
 
+const aiMealPlan = async (userId: string) => {
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    console.log(user)
+    const payload = {
+        "primary_goal": user?.goal,
+        "weight_kg": user?.weight,
+        "height_cm": user?.height,
+        "is_meat_eater": user?.eatMeat,
+        "is_lactose_intolerant": user?.lactoseIntolerant,
+        "allergies": user?.anyAllergies,
+        "eating_style": user?.eatingStyle,
+        "caffeine_consumption": user?.caffeineIntake,
+        "sugar_consumption": user?.sugarIntake
+    }
+    const response = await fetch("https://gymapp-tukx.onrender.com/api/v1/meal-planner", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json", // 👈 Required for JSON payload
+        },
+        body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+
+    return data;
+}
+
+interface ImageFile {
+    location: string;
+    name?: string;
+}
+  
+  export const aiFoodScanner = async (imageFile: ImageFile) => {
+    console.log("Downloading image from: ", imageFile.location);
+  
+    // Step 1: Download the remote image and save to temp file
+    const response = await fetch(imageFile.location);
+    if (!response.ok) throw new Error("Failed to download image");
+  
+    const buffer = await response.arrayBuffer();
+    const fileName = imageFile.name || `image-${uuidv4()}.jpg`;
+    const filePath = path.join(__dirname, fileName);
+  
+    fs.writeFileSync(filePath, Buffer.from(buffer)); // Save locally
+  
+    // Step 2: Prepare form-data with fs stream
+    const form = new FormData();
+    form.append("image", fs.createReadStream(filePath)); // ✅ Send file stream
+  
+    // Step 3: Call the external API
+    const scanResponse = await fetch("https://gymapp-tukx.onrender.com/api/v1/food-scanner", {
+      method: "POST",
+      headers: form.getHeaders(), // Must include Content-Type with boundary
+      body: form,
+    });
+  
+    const data = await scanResponse.json();
+  
+    // Step 4: Cleanup (optional)
+    fs.unlinkSync(filePath); // Delete temp file after upload
+  
+    return data;
+  };
+  
+
 export const mealPlanService = {
     createMealPlan,
     getMealPlan,
     updateMealPlan,
     deleteMealPlan,
-    getMealPlanById
+    getMealPlanById,
+    aiMealPlan,
+    aiFoodScanner
 }

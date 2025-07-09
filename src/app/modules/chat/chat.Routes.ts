@@ -36,4 +36,4 @@ router.put("/chatWithAI", auth(), ChatControllers.chatWithAIController);
 //   ChatControllers.generateFile
 // );
 
-export const ChatRouters = router;
+export const chatRouters = router;

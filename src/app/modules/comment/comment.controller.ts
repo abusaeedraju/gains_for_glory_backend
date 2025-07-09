@@ -42,4 +42,15 @@ const deleteCommentController = catchAsync(async (req: Request, res: Response) =
     });
 })
 
-export const commentController = { createCommentController, editCommentController, deleteCommentController }  
+const getCommentByPostIdController = catchAsync(async (req: Request, res: Response) => {
+    const { postId } = req.params
+    const communityData = await commentServices.getCommentByPostId(postId);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        message: "Comment retrieved successfully",
+        data: communityData,
+        success: true,
+    });
+})  
+
+export const commentController = { createCommentController, editCommentController, deleteCommentController, getCommentByPostIdController }  

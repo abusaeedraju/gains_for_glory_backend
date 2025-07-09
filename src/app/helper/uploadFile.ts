@@ -57,6 +57,7 @@ const uploadFoodImages = upload.single("foodImage");
 const serviceImage = upload.single("serviceImage");
 const uploadProductImages = upload.array("productImage");
 const uploadPostImages = upload.single("postImage");
+const uploadFoodScannerImages = upload.single("foodScannerImage");
 
 // Multiple image uploads
 
@@ -66,5 +67,6 @@ export const fileUploader = {
   uploadFoodImages,
   serviceImage,
   uploadProductImages,
-  uploadPostImages
+  uploadPostImages,
+  uploadFoodScannerImages
 };
