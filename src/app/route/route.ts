@@ -7,9 +7,10 @@ import { cartRoutes } from "../modules/cart/cart.route"
 import { communityRoutes } from "../modules/community/community.route"
 import { likeRoutes } from "../modules/like/like.routes"
 import { commentRoutes } from "../modules/comment/comment.routes"
-import { mealPlanRoutes } from "../modules/mealPlan/meal.route" 
+import { mealPlanRoutes } from "../modules/mealPlan/meal.route"
 import { addressRoutes } from "../modules/address/address.route"
 import { chatRouters } from "../modules/chat/chat.Routes"
+import { paymentRoutes } from "../modules/payment/payment.routes"
 const router = Router()
 const routes = [
     {
@@ -19,42 +20,46 @@ const routes = [
     {
         path: "/auth",
         component: authRoutes
-    },  
+    },
     {
-        path:"/product",
+        path: "/product",
         component: productRoutes
     },
     {
-        path:"/review",
-        component:reviewRoutes
+        path: "/review",
+        component: reviewRoutes
     },
     {
-        path:"/cart",
-        component:cartRoutes
+        path: "/cart",
+        component: cartRoutes
     },
     {
-        path:"/community",
-        component:communityRoutes
+        path: "/community",
+        component: communityRoutes
     },
     {
-        path:"/comment",
-        component:commentRoutes
+        path: "/comment",
+        component: commentRoutes
     },
     {
-        path:"/like",
-        component:likeRoutes
+        path: "/like",
+        component: likeRoutes
     },
     {
-        path:"/mealPlan",
-        component:mealPlanRoutes
+        path: "/mealPlan",
+        component: mealPlanRoutes
     },
     {
-        path:"/address",
-        component:addressRoutes
+        path: "/address",
+        component: addressRoutes
     },
     {
-        path:"/chat",
-        component:chatRouters
+        path: "/chat",
+        component: chatRouters
+    },
+    {
+        path: "/payment",
+        component: paymentRoutes
     }
 ]
 

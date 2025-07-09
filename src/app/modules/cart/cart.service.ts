@@ -3,6 +3,10 @@ import ApiError from "../../error/ApiErrors"
 import { StatusCodes } from "http-status-codes"
 
 const addToCart = async (payload: any, userId: string, productId: string) => {
+    const product = await prisma.product.findUnique({ where: { id: productId } })
+    if (!product) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "Product not found")
+    }
     const result = await prisma.cart.create({
         data: {
             ...payload,
@@ -32,6 +36,10 @@ const getMyCartItem = async (userId: string) => {
     return result
 }
 const deleteCartItem = async (id: string) => {
+    const cart = await prisma.cart.findUnique({ where: { id } })
+    if (!cart) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "Cart not found")
+    }
     const result = await prisma.cart.delete({ where: { id } })
     return result
 

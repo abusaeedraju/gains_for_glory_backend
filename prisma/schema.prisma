@@ -56,6 +56,7 @@ model User {
   like                   Like[]
   mealPlan               MealPlan[]
   address                Address[]
+  order                  Order[]
 }
 
 model Otp {
@@ -118,6 +119,7 @@ model Product {
   updatedAt          DateTime   @updatedAt
   Cart               Cart[]
   favorite           Favorite[]
+  Order              Order[]
 }
 
 model Cart {
@@ -131,6 +133,38 @@ model Cart {
   productDetails Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model Order {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  paymentId     String
+  paymentMethod String?
+  name          String
+  email         String
+  number        String
+  country       String
+  city          String
+  address       String
+  productId     String   @db.ObjectId
+  productName   String
+  productPrice  Float
+  quantity      Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+
+model Payment {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  productId     String[]
+  amount        Float
+  paymentMethod String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Favorite {
