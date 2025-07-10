@@ -8,7 +8,6 @@ import { communityRoutes } from "../modules/community/community.route"
 import { likeRoutes } from "../modules/like/like.routes"
 import { commentRoutes } from "../modules/comment/comment.routes"
 import { mealPlanRoutes } from "../modules/mealPlan/meal.route"
-import { addressRoutes } from "../modules/address/address.route"
 import { chatRouters } from "../modules/chat/chat.Routes"
 import { paymentRoutes } from "../modules/payment/payment.routes"
 const router = Router()
@@ -48,10 +47,6 @@ const routes = [
     {
         path: "/mealPlan",
         component: mealPlanRoutes
-    },
-    {
-        path: "/address",
-        component: addressRoutes
     },
     {
         path: "/chat",

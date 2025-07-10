@@ -24,7 +24,7 @@ model User {
   goal              String?
   eatMeat           Boolean?
   lactoseIntolerant Boolean?
-  anyAllergies      String[]       @default([])
+  anyAllergies      String[] @default([])
   eatingStyle       String?
   caffeineIntake    String?
   sugarIntake       String?
@@ -33,7 +33,6 @@ model User {
   weight            Float?
   height            Float?
   dateOfBirth       String?
-  conversation      Conversation[]
 
   fcmToken               String?
   image                  String?
@@ -55,8 +54,11 @@ model User {
   comment                Comment[]
   like                   Like[]
   mealPlan               MealPlan[]
-  address                Address[]
   order                  Order[]
+  Message                Message[]        @relation("UserMessages")
+  Conversation1          Conversation[]   @relation("User1Conversations")
+  Conversation2          Conversation[]   @relation("User2Conversations")
+
 }
 
 model Otp {
@@ -84,24 +86,6 @@ model MealPlan {
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-//for chatBot
-model Conversation {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  user      User      @relation(fields: [userId], references: [id])
-  userId    String    @db.ObjectId
-  messages  Message[]
-  createdAt DateTime  @default(now())
-}
-
-model Message {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  conversationId String       @db.ObjectId
-  sender         String
-  content        String
-  timestamp      DateTime     @default(now())
 }
 
 model Product {
@@ -150,12 +134,11 @@ model Order {
   productName   String
   productPrice  Float
   quantity      Int
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
-
 
 model Payment {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -225,6 +208,37 @@ model Like {
   updatedAt DateTime @updatedAt
 }
 
+model Conversation {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  user1Id   String    @db.ObjectId
+  user2Id   String    @db.ObjectId
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  // Relationships
+  messages  Message[] @relation("ConversationMessages")
+  user1     User      @relation("User1Conversations", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2     User      @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String   @db.ObjectId
+  senderId       String   @db.ObjectId
+  receiverId     String   @db.ObjectId
+  content        String?
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relationships
+  sender       User         @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation("ConversationMessages", fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
 model Notifications {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   receiverId String   @db.ObjectId
@@ -236,20 +250,6 @@ model Notifications {
   updatedAt  DateTime @updatedAt
   receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User?    @relation("senderDetails", fields: [senderId], references: [id], onDelete: Cascade)
-}
-
-model Address {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId         String   @db.ObjectId
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name           String
-  email          String?
-  phone          String
-  presentAddress String
-  city           String
-  country        String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
 }
 
 enum Role {

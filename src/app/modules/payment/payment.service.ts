@@ -115,9 +115,6 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
     },
   });
 
-  console.log(findProductFromCart, "findProductFromCart");
-  
-
   const orderData = findProductFromCart.map((item) => ({
     userId,
     paymentId: payment.id,

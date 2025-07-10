@@ -11,7 +11,8 @@ import { Request } from "express";
 // import { fileUploader } from "../../helpers/fileUploader";
 
 const prisma = new PrismaClient();
-/* 
+
+
 // Create a new conversation between two users
 const createConversationIntoDB = async (user1Id: string, user2Id: string) => {
   // Check if a conversation already exists between these two users
@@ -38,238 +39,238 @@ const createConversationIntoDB = async (user1Id: string, user2Id: string) => {
   return result;
 };
 
-// Get all conversations for a specific user
-const getConversationsByUserIdIntoDB = async (userId: string) => {
-  const result = await prisma.conversation.findMany({
-    where: {
-      OR: [{ user1Id: userId }, { user2Id: userId }],
-    },
-    include: {
-      user1: true, // Include details of user1
-      user2: true, // Include details of user2
-      messages: {
-        orderBy: { createdAt: "desc" }, // Include the latest message
-        take: 1, // Just get the latest message for preview
-      },
-    },
-  });
-  return result;
-};
+// // Get all conversations for a specific user
+// const getConversationsByUserIdIntoDB = async (userId: string) => {
+//   const result = await prisma.conversation.findMany({
+//     where: {
+//       OR: [{ user1Id: userId }, { user2Id: userId }],
+//     },
+//     include: {
+//       user1: true, // Include details of user1
+//       user2: true, // Include details of user2
+//       messages: {
+//         orderBy: { createdAt: "desc" }, // Include the latest message
+//         take: 1, // Just get the latest message for preview
+//       },
+//     },
+//   });
+//   return result;
+// };
 
-// Get messages for a specific conversation between two users
-const getMessagesByConversationIntoDB = async (
-  user1Id: string,
-  user2Id: string
-) => {
-  const conversation = await prisma.conversation.findFirst({
-    where: {
-      OR: [
-        { user1Id: user1Id, user2Id: user2Id },
-        { user1Id: user2Id, user2Id: user1Id },
-      ],
-    },
-    include: {
-      messages: {
-        orderBy: { createdAt: "asc" },
-      },
-    },
-  });
+// // Get messages for a specific conversation between two users
+// const getMessagesByConversationIntoDB = async (
+//   user1Id: string,
+//   user2Id: string
+// ) => {
+//   const conversation = await prisma.conversation.findFirst({
+//     where: {
+//       OR: [
+//         { user1Id: user1Id, user2Id: user2Id },
+//         { user1Id: user2Id, user2Id: user1Id },
+//       ],
+//     },
+//     include: {
+//       messages: {
+//         orderBy: { createdAt: "asc" },
+//       },
+//     },
+//   });
 
-  return conversation || [];
-};
+//   return conversation || [];
+// };
 
-// Create a message in a specific conversation
-const createMessageIntoDB = async (
-  conversationId: string,
-  senderId: string,
-  receiverId: string,
-  content: string,
-  file: any
-) => {
-  const conversation = await prisma.conversation.findUnique({
-    where: { id: conversationId },
-  });
+// // Create a message in a specific conversation
+// const createMessageIntoDB = async (
+//   conversationId: string,
+//   senderId: string,
+//   receiverId: string,
+//   content: string,
+//   file: any
+// ) => {
+//   const conversation = await prisma.conversation.findUnique({
+//     where: { id: conversationId },
+//   });
 
-  if (!conversation) {
-    throw new Error("Conversation not found");
-  }
+//   if (!conversation) {
+//     throw new Error("Conversation not found");
+//   }
 
-  // Create a message in the existing conversation
-  const result = await prisma.message.create({
-    data: {
-      conversationId: conversation.id,
-      senderId,
-      receiverId,
-      content,
-    },
-  });
+//   // Create a message in the existing conversation
+//   const result = await prisma.message.create({
+//     data: {
+//       conversationId: conversation.id,
+//       senderId,
+//       receiverId,
+//       content,
+//     },
+//   });
 
-  return result;
-};
-const getChatUsersForUser = async (userId: string) => {
-  const conversations = await prisma.conversation.findMany({
-    where: {
-      OR: [{ user1Id: userId }, { user2Id: userId }],
-    },
-    include: {
-      user1: true,
-      user2: true,
-      messages: {
-        orderBy: { createdAt: "desc" }, // Get the most recent message
-        take: 1, // Only return the latest message
-      },
-    },
-  });
+//   return result;
+// };
+// const getChatUsersForUser = async (userId: string) => {
+//   const conversations = await prisma.conversation.findMany({
+//     where: {
+//       OR: [{ user1Id: userId }, { user2Id: userId }],
+//     },
+//     include: {
+//       user1: true,
+//       user2: true,
+//       messages: {
+//         orderBy: { createdAt: "desc" }, // Get the most recent message
+//         take: 1, // Only return the latest message
+//       },
+//     },
+//   });
 
-  // Extract the unique list of users the user is chatting with and their last message
-  const chatUsersData = conversations.map((conversation) => {
-    const chatUser =
-      conversation.user1Id === userId ? conversation.user2 : conversation.user1;
-    const lastMessage = conversation.messages[0]; // The most recent message
-    return {
-      chatUser,
-      lastMessage, // Include the latest message
-    };
-  });
+//   // Extract the unique list of users the user is chatting with and their last message
+//   const chatUsersData = conversations.map((conversation) => {
+//     const chatUser =
+//       conversation.user1Id === userId ? conversation.user2 : conversation.user1;
+//     const lastMessage = conversation.messages[0]; // The most recent message
+//     return {
+//       chatUser,
+//       lastMessage, // Include the latest message
+//     };
+//   });
 
-  return chatUsersData;
-};
+//   return chatUsersData;
+// };
 
-const deleteConversation = async (id: string) => {
-  // Start a transaction
-  return await prisma.$transaction(async (prisma) => {
-    // Check if the conversation exists
-    const isConversationExist = await prisma.conversation.findUnique({
-      where: { id },
-      include: { messages: true }, // Include messages in the conversation
-    });
+// const deleteConversation = async (id: string) => {
+//   // Start a transaction
+//   return await prisma.$transaction(async (prisma) => {
+//     // Check if the conversation exists
+//     const isConversationExist = await prisma.conversation.findUnique({
+//       where: { id },
+//       include: { messages: true }, // Include messages in the conversation
+//     });
 
-    if (!isConversationExist) {
-      throw new ApiError(StatusCodes.NOT_FOUND, "Conversation not found");
-    }
+//     if (!isConversationExist) {
+//       throw new ApiError(StatusCodes.NOT_FOUND, "Conversation not found");
+//     }
 
-    // First, delete all related messages
-    await prisma.message.deleteMany({
-      where: { conversationId: id },
-    });
+//     // First, delete all related messages
+//     await prisma.message.deleteMany({
+//       where: { conversationId: id },
+//     });
 
-    // Then, delete the conversation
-    const result = await prisma.conversation.delete({
-      where: { id },
-    });
+//     // Then, delete the conversation
+//     const result = await prisma.conversation.delete({
+//       where: { id },
+//     });
 
-    if (!result) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        "Could not delete conversation"
-      );
-    }
+//     if (!result) {
+//       throw new ApiError(
+//         StatusCodes.BAD_REQUEST,
+//         "Could not delete conversation"
+//       );
+//     }
 
-    return result;
-  });
-};
+//     return result;
+//   });
+// };
 
-const countUnreadMessages = async (userId: string, chatroomId: string) => {
-  const unreadCount = await prisma.message.count({
-    where: {
-      conversationId: chatroomId,
-      receiverId: userId,
-      isRead: false, // Only count unread messages
-    },
-  });
+// const countUnreadMessages = async (userId: string, chatroomId: string) => {
+//   const unreadCount = await prisma.message.count({
+//     where: {
+//       conversationId: chatroomId,
+//       receiverId: userId,
+//       isRead: false, // Only count unread messages
+//     },
+//   });
 
-  return unreadCount;
-};
-const markMessagesAsRead = async (userId: string, chatroomId: string) => {
-  await prisma.message.updateMany({
-    where: {
-      receiverId: userId,
-      conversationId: chatroomId,
-      isRead: false, // Only update unread messages
-    },
-    data: {
-      isRead: true, // Mark as read
-    },
-  });
-};
+//   return unreadCount;
+// };
+// const markMessagesAsRead = async (userId: string, chatroomId: string) => {
+//   await prisma.message.updateMany({
+//     where: {
+//       receiverId: userId,
+//       conversationId: chatroomId,
+//       isRead: false, // Only update unread messages
+//     },
+//     data: {
+//       isRead: true, // Mark as read
+//     },
+//   });
+// };
 
-const searchUser = async (req: Request) => {
-  const user = req.query.user as string;
+// const searchUser = async (req: Request) => {
+//   const user = req.query.user as string;
 
-  const result = await prisma.user.findMany({
-    where: {
-      name: user,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      name: true,
-      image: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+//   const result = await prisma.user.findMany({
+//     where: {
+//       name: user,
+//     },
+//     orderBy: {
+//       createdAt: "desc",
+//     },
+//     select: {
+//       id: true,
+//       name: true,
+//       image: true,
+//       createdAt: true,
+//       updatedAt: true,
+//     },
+//   });
 
-  return {
-    meta: {
-      total: await prisma.user.count({
-        where: {
-          name: user,
-        },
-      }),
-    },
-    data: result,
-  };
-};
+//   return {
+//     meta: {
+//       total: await prisma.user.count({
+//         where: {
+//           name: user,
+//         },
+//       }),
+//     },
+//     data: result,
+//   };
+// };
 
-const getMyChat = async (userId: string) => {
-  const result = await prisma.conversation.findMany({
-    where: {
-      OR: [{ user1Id: userId }, { user2Id: userId }],
-    },
-    include: {
-      messages: {
-        orderBy: { createdAt: "desc" },
-      },
-    },
-  });
+// const getMyChat = async (userId: string) => {
+//   const result = await prisma.conversation.findMany({
+//     where: {
+//       OR: [{ user1Id: userId }, { user2Id: userId }],
+//     },
+//     include: {
+//       messages: {
+//         orderBy: { createdAt: "desc" },
+//       },
+//     },
+//   });
 
-  const chatList = await Promise.all(
-    result.map(async (conversation, index) => {
-      const lastMessage = conversation.messages[0];
-      const targetUserId =
-        conversation.user1Id === userId
-          ? conversation.user2Id
-          : conversation.user1Id;
+//   const chatList = await Promise.all(
+//     result.map(async (conversation, index) => {
+//       const lastMessage = conversation.messages[0];
+//       const targetUserId =
+//         conversation.user1Id === userId
+//           ? conversation.user2Id
+//           : conversation.user1Id;
 
-      const targetUserProfile = await prisma.user.findUnique({
-        where: { id: targetUserId },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-        },
-      });
+//       const targetUserProfile = await prisma.user.findUnique({
+//         where: { id: targetUserId },
+//         select: {
+//           id: true,
+//           name: true,
+//           email: true,
+//           image: true,
+//         },
+//       });
 
-      const numberOfUnreadMessages = conversation.messages.map((message) => {
-        return countUnreadMessages(userId, message.conversationId);
-      });
+//       const numberOfUnreadMessages = conversation.messages.map((message) => {
+//         return countUnreadMessages(userId, message.conversationId);
+//       });
 
-      return {
-        conversationId: conversation.id,
-        user: targetUserProfile || null,
-        lastMessage: lastMessage ? lastMessage.content : null,
-        lastMessageDate: lastMessage ? lastMessage.createdAt : null,
-        numberOfUnreadMessages: numberOfUnreadMessages[index],
-      };
-    })
-  );
+//       return {
+//         conversationId: conversation.id,
+//         user: targetUserProfile || null,
+//         lastMessage: lastMessage ? lastMessage.content : null,
+//         lastMessageDate: lastMessage ? lastMessage.createdAt : null,
+//         numberOfUnreadMessages: numberOfUnreadMessages[index],
+//       };
+//     })
+//   );
 
-  return chatList;
-};
+//   return chatList;
+// };
 
 // const generateFile = async (userId: string, files: any) => {
 //   let file = null;
@@ -293,7 +294,7 @@ const getMyChat = async (userId: string) => {
 
 //   return post;
 // };
- */
+
 const chatWithAI = async (payload: any, id: string) => {
 
   const response = await fetch("https://gymapp-tukx.onrender.com/api/v1/coach", {
@@ -309,16 +310,20 @@ const chatWithAI = async (payload: any, id: string) => {
 };
 
 export const chatServices = {
-/*   createConversationIntoDB,
-  getConversationsByUserIdIntoDB,
-  getMessagesByConversationIntoDB,
-  createMessageIntoDB,
-  getChatUsersForUser,
-  deleteConversation,
-  countUnreadMessages,
-  markMessagesAsRead,
-  getMyChat,
-  searchUser, */
+   createConversationIntoDB,
+  // getConversationsByUserIdIntoDB,
+  // getMessagesByConversationIntoDB,
+  // createMessageIntoDB,
+  // getChatUsersForUser,
+  // deleteConversation,
+  // countUnreadMessages,
+  // markMessagesAsRead,
+  // getMyChat,
+  // searchUser, 
   chatWithAI,
+  // createConversation,
+  // sendMessage,
+  // getMessages,
+  // getUserConversations,
   // generateFile,
 };
