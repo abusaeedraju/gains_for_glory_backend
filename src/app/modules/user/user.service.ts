@@ -128,6 +128,14 @@ const getMyProfile = async (id: string) => {
     return updateDetails
 }
 const deleteProfile = async (id: string) => {
+    const findUser = await prisma.user.findUnique({
+        where: {
+            id
+        }
+    })
+    if (!findUser) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "User not found")
+    }
     const result = await prisma.user.delete({
         where: {
             id
@@ -182,4 +190,5 @@ const getBasicUsers = async () => {
     }
     return result
 }
+
 export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile,getMyReferCode ,getAllUsers,getFreeUsers,getPremiumUsers,getBasicUsers}

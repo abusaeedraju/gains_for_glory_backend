@@ -15,7 +15,7 @@ route.put('/change-password', auth(Role.USER || Role.ADMIN), validateRequest(Use
 
 route.put("/me", auth(Role.USER || Role.ADMIN), fileUploader.uploadProfileImage, parseBodyMiddleware, userController.updateUserController)
 route.get("/me", auth(), userController.getMyProfileController)
-route.delete("/delete/me", auth(Role.USER), userController.deleteProfileController)
+route.delete("/delete/me", auth(), userController.deleteProfileController)
 route.get("/refer-code", auth(Role.USER), userController.getMyReferCodeController)
 
 route.get("/all-users", auth(Role.ADMIN), userController.getAllUsersController)

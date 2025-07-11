@@ -10,6 +10,9 @@ import { commentRoutes } from "../modules/comment/comment.routes"
 import { mealPlanRoutes } from "../modules/mealPlan/meal.route"
 import { chatRouters } from "../modules/chat/chat.Routes"
 import { paymentRoutes } from "../modules/payment/payment.routes"
+import { orderRouter } from "../modules/order/order.route"
+import { bibleRoutes } from "../modules/daily Bible/bible.route"
+import { workoutRoutes } from "../modules/workout plan/workout.route"
 const router = Router()
 const routes = [
     {
@@ -55,6 +58,18 @@ const routes = [
     {
         path: "/payment",
         component: paymentRoutes
+    },
+    {
+        path: "/order",
+        component: orderRouter
+    },
+    {
+        path: "/bible",
+        component: bibleRoutes
+    },
+    {
+        path: "/workout",
+        component: workoutRoutes
     }
 ]
 

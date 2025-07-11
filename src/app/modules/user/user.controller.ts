@@ -35,7 +35,7 @@ const deleteProfileController = catchAsync(async (req: Request, res: Response) =
     const { id } = req.user
     const result = await userServices.deleteProfile(id)
     sendResponse(res, { statusCode: StatusCodes.OK, message: "User profile deleted successfully", data: result, success: true })
-})  
+})
 const getMyReferCodeController = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.user
     const result = await userServices.getMyReferCode(id)
@@ -57,4 +57,4 @@ const getBasicUsersController = catchAsync(async (req: Request, res: Response) =
     const result = await userServices.getBasicUsers()
     sendResponse(res, { statusCode: StatusCodes.OK, message: "Users retrieved successfully", data: result, success: true })
 })
-export const userController = { createUserController, updateUserController, changePasswordController, getMyProfileController,deleteProfileController,getMyReferCodeController,getAllUsersController,getFreeUsersController,getPremiumUsersController,getBasicUsersController} 
+export const userController = { createUserController, updateUserController, changePasswordController, getMyProfileController, deleteProfileController, getMyReferCodeController, getAllUsersController, getFreeUsersController, getPremiumUsersController, getBasicUsersController } 

@@ -38,13 +38,6 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
     }
   })
 
-  // const foundProducts = await prisma.product.findMany({
-  //   where: {
-  //       id: { in: allCartId.map((cart) => cart.productId) }
-  //     },
-  //   select: { id: true, name: true, price: true }
-  // });
-
   const findProductFromCart = await prisma.cart.findMany({
     where: {
       id: { in: allCartId.map((cart) => cart.id) }
@@ -61,28 +54,6 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
       },
     },
   });
-
-  // console.log(allCartId, "allCartId")
-  // console.log(findProductFromCart, "findProductFromCart")
-
-  // const foundIds = foundProducts.map(p => p.id);
-  // const missingIds = allCartId.filter(id => !foundIds.includes(id.id));
-
-  // console.log(missingIds, "missingIds")
-
-  // if (missingIds.length > 0) {
-  //   throw new ApiError(StatusCodes.NOT_FOUND, "Some products not found!");
-  // }
-
-  // const findService = await prisma.service.findUnique({
-  //   where: {
-  //     id: payload.serviceId,
-  //   },
-  // });
-
-  // if (!findService) {
-  //   throw new ApiError(StatusCodes.NOT_FOUND, "Service not found!");
-  // }
 
   await stripe.paymentMethods.attach(payload.paymentMethodId, {
     customer: findUser?.customerId as string,
@@ -138,6 +109,12 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
   const orders = await prisma.order.createMany({
     data: orderData,
   });
+
+  await prisma.cart.deleteMany({
+    where: {
+      userId: userId
+    }
+  })
 
   return orders;
 
