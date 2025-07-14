@@ -19,6 +19,34 @@ const createPaymentController = catchAsync(
   }
 );
 
+const createDonationController = catchAsync(
+  async (req: Request, res: Response) => {
+    const payload = req.body as any;
+    const { id: userId } = req.user;
+
+    const result = await paymentService.createIntentInStripeForDonation(payload, userId);
+    sendResponse(res, {
+      statusCode: StatusCodes.CREATED,
+      message: "Donation created successfully",
+      data: result,
+      success: true,
+    });
+  }
+);  
+
+const getDonationController = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id: userId } = req.user;
+    const result = await paymentService.getDonation(userId);
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      message: "Donation retrieved successfully",
+      data: result,
+      success: true,
+    });
+  }
+);  
+
 // const saveCardController = catchAsync(async (req: Request, res: Response) => {
 //   const body = req.body as any;
 //   const { id: userId } = req.user;
@@ -83,6 +111,8 @@ const createPaymentController = catchAsync(
 
 export const paymentController = {
   createPaymentController,
+  createDonationController,
+  getDonationController,
   // saveCardController,
   // getSaveCardController,
   // deleteCardController,

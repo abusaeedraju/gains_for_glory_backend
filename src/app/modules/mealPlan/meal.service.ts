@@ -48,7 +48,6 @@ const deleteMealPlan = async (id: string, userId: string) => {
 
 const aiMealPlan = async (userId: string) => {
     const user = await prisma.user.findUnique({ where: { id: userId } })
-    console.log(user)
     const payload = {
         "primary_goal": user?.goal,
         "weight_kg": user?.weight,
@@ -58,8 +57,12 @@ const aiMealPlan = async (userId: string) => {
         "allergies": user?.anyAllergies,
         "eating_style": user?.eatingStyle,
         "caffeine_consumption": user?.caffeineIntake,
-        "sugar_consumption": user?.sugarIntake
+        "sugar_consumption": user?.sugarIntake,
+        "workout_type": user?.workoutType,
+        "workout_frequency": user?.workOutDaysInWeek,
+        "date_of_birth": user?.dateOfBirth
     }
+
     const response = await fetch("https://gymapp-tukx.onrender.com/api/v1/meal-planner", {
         method: "POST",
         headers: {

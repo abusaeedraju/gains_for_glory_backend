@@ -122,6 +122,67 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
 }
 
 
+// Donation
+
+interface payloadTypeForDonation {
+  amount: number;
+  paymentMethodId: string;
+  paymentMethod?: string;
+}
+const createIntentInStripeForDonation = async (payload: payloadTypeForDonation, userId: string) => {
+  const findUser = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!findUser) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
+  }
+
+  if (findUser?.customerId === null) {
+    await createStripeCustomerAcc(findUser);
+  }
+
+
+  await stripe.paymentMethods.attach(payload.paymentMethodId, {
+    customer: findUser?.customerId as string,
+  });
+
+  const payment = await stripe.paymentIntents.create({
+    amount: Math.round(payload.amount * 100),
+    currency: payload?.paymentMethod || "usd",
+    payment_method: payload.paymentMethodId,
+    customer: findUser?.customerId as string,
+    confirm: true,
+    automatic_payment_methods: {
+      enabled: true,
+      allow_redirects: "never",
+    },
+  });
+
+  if (payment.status !== "succeeded") {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Payment failed");
+  }
+
+  await prisma.donation.create({
+    data: {
+      userId: userId,
+      amount: payload.amount,
+      paymentMethod: payload.paymentMethod,
+    },
+  });
+
+  return payment;
+
+
+}
+
+const getDonation = async (userId: string) => {
+  const findUser = await prisma.user.findUnique({ where: { id: userId } });
+  if (!findUser) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
+  }
+  const donation = await prisma.donation.findMany({ where: { userId } });
+  return donation;
+} 
+
 
 /* const saveCardInStripe = async (payload: {
   paymentMethodId: string;
@@ -437,6 +498,8 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
 
 export const paymentService = {
   createIntentInStripe,
+  createIntentInStripeForDonation,
+  getDonation,
   /*   saveCardInStripe,
     getSaveCardsFromStripe,
     deleteCardFromStripe,

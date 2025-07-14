@@ -58,6 +58,7 @@ model User {
   Message                Message[]        @relation("UserMessages")
   Conversation1          Conversation[]   @relation("User1Conversations")
   Conversation2          Conversation[]   @relation("User2Conversations")
+  donation               Donation[] 
 }
 
 model Otp {
@@ -81,6 +82,7 @@ model MealPlan {
   calories  Float
   image     String
   note      String
+  preparation_steps String[] @default([])
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
@@ -146,6 +148,17 @@ model Payment {
   productId     String[]
   amount        Float
   paymentMethod String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Donation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @db.ObjectId
+  amount        Float
+  paymentMethod String?
+  status        String    @default("completed")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
