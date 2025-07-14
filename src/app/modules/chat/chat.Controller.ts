@@ -4,18 +4,61 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../middleware/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 
+const joinGroupController = catchAsync(async (req: Request, res: Response) => {
+    const { userId, groupChatId } = req.body;
+    const result = await chatServices.joinGroup(userId, groupChatId);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'User joined group successfully',
+        data: result,
+    });
+});
+
+const sendMessageController = catchAsync(async (req: Request, res: Response) => {
+    const { senderId, groupChatId, content } = req.body;
+    const result = await chatServices.sendMessage(senderId, groupChatId, content);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Message sent successfully',
+        data: result,
+    });
+});
+
+const getGroupMessagesController = catchAsync(async (req: Request, res: Response) => {
+    const { groupChatId } = req.query;
+    const result = await chatServices.getGroupMessages(groupChatId as string);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'Group messages retrieved successfully',
+        data: result,
+    });
+});
+
+const getUserGroupsController = catchAsync(async (req: Request, res: Response) => {
+    const { userId } = req.query;
+    const result = await chatServices.getUserGroups(userId as string);
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: 'User groups retrieved successfully',
+        data: result,
+    });
+}); 
 
 // Create a new conversation (chatroom) between two users
-const createConversation = catchAsync(async (req: Request, res: Response) => {
-  const { user1Id, user2Id } = req.body;
-  const result = await chatServices.createConversationIntoDB(user1Id, user2Id);
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: 'Conversation created successfully',
-    data: result,
-  });
-});
+// const createConversation = catchAsync(async (req: Request, res: Response) => {
+//   const { user1Id, user2Id } = req.body;
+//   const result = await chatServices.createConversationIntoDB(user1Id, user2Id);
+//   sendResponse(res, {
+//     statusCode: StatusCodes.OK,
+//     success: true,
+//     message: 'Conversation created successfully',
+//     data: result,
+//   });
+// });
 
 
 // // Get a specific chatroom (conversation) between two users
@@ -154,7 +197,7 @@ const chatWithAIController = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const ChatControllers = {
-  createConversation,
+  //createConversation,
   // sendMessage,
   // getMessages,
   // getUserConversations,
@@ -162,5 +205,9 @@ export const ChatControllers = {
   // getMyChat,
   // searchUser, 
   chatWithAIController,
+  sendMessageController,
+  getGroupMessagesController,
+  getUserGroupsController,
+  joinGroupController,
   // generateFile,
 };

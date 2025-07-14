@@ -2,10 +2,10 @@
 import { prisma } from "../../../utils/prisma"
 import ApiError from "../../error/ApiErrors";
 import { StatusCodes } from "http-status-codes";
-import{isValidCommunityUser} from "../../helper/isValidCommunityUser"
+import { isValidCommunityUser } from "../../helper/isValidCommunityUser"
 import { getImageUrl } from './../../helper/uploadFile';
 
-  
+
 const getCommunity = async (userId: string) => {
     if (!userId) {
         throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
@@ -71,16 +71,16 @@ const getCommunityRequest = async (typeStr: string) => {
 
 }
 
-const acceptRequest = async (userId: string, typeStr: string) => {
+const acceptRequest = async (userId: string, community: string) => {
 
     if (!userId) {
         throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
     }
-    if (!typeStr) {
+    if (!community) {
         throw new ApiError(StatusCodes.NOT_FOUND, "CommunityName is required")
     }
 
-    const communityName = typeStr.toUpperCase()
+    const communityName = community.toUpperCase()
     const typeArrayEnum = ["BIBLE", "WORKOUT", "FINANCE"]
 
     if (!typeArrayEnum.includes(communityName)) {
@@ -116,19 +116,33 @@ const acceptRequest = async (userId: string, typeStr: string) => {
             financeCommunityStatus: true
         }
     })
+
+    // Step 1: Get all group chats
+    const groupChats = await prisma.groupChat.findMany();
+
+    // Step 2: Add this user to all groups
+    await prisma.groupMember.createMany({
+        data: groupChats.map(group => ({
+            userId: userId,
+            groupChatId: group.id,
+        }))
+    });
+
+
+
     return result
 
 }
-const blockRequest = async (userId: string, typeStr: string) => {
+const blockRequest = async (userId: string, community: string) => {
 
     if (!userId) {
         throw new ApiError(StatusCodes.NOT_FOUND, "UserId not found")
     }
-    if (!typeStr) {
+    if (!community) {
         throw new ApiError(StatusCodes.NOT_FOUND, "CommunityName is required")
     }
 
-    const communityName = typeStr.toUpperCase()
+    const communityName = community.toUpperCase()
     const typeArrayEnum = ["BIBLE", "WORKOUT", "FINANCE"]
 
     if (!typeArrayEnum.includes(communityName)) {
@@ -167,7 +181,7 @@ const blockRequest = async (userId: string, typeStr: string) => {
     return result
 }
 const createPost = async (userId: string, category: string, payload: any, image: any) => {
-const imageUrl = image && await getImageUrl(image)
+    const imageUrl = image && await getImageUrl(image)
     const user = await isValidCommunityUser(userId, category)
 
     const post = await prisma.post.create({
@@ -205,7 +219,7 @@ const getCommunityPosts = async (communityName: any) => {
             image: true,
             createdAt: true,
             updatedAt: true,
-            user : {
+            user: {
                 select: {
                     id: true,
                     name: true,
@@ -217,9 +231,9 @@ const getCommunityPosts = async (communityName: any) => {
                     comment: true,
                     like: true
                 }
-            }    
+            }
         },
-        
+
     })
     if (posts.length === 0) {
         throw new ApiError(StatusCodes.NOT_FOUND, "Posts not found")
@@ -253,7 +267,7 @@ const getCommunityPostByUserId = async (userId: any, communityName: any) => {
             image: true,
             createdAt: true,
             updatedAt: true,
-            user : {
+            user: {
                 select: {
                     id: true,
                     name: true,
@@ -313,17 +327,17 @@ const deletePost = async (userId: string, postId: string) => {
     }
 }
 
-const getCommunityUsers = async (   ) => {
+const getCommunityUsers = async () => {
     const bibleUsers = await prisma.user.count({
-        where: {bibleCommunityStatus: "APPROVED" },
+        where: { bibleCommunityStatus: "APPROVED" },
     })
     const workoutUsers = await prisma.user.count({
-        where: {workoutCommunityStatus: "APPROVED" },
+        where: { workoutCommunityStatus: "APPROVED" },
     })
     const financeUsers = await prisma.user.count({
-        where: {financeCommunityStatus: "APPROVED" },
+        where: { financeCommunityStatus: "APPROVED" },
     })
-    return {"bibleUsers":bibleUsers,"workoutUsers":workoutUsers,"financeUsers":financeUsers}
+    return { "bibleUsers": bibleUsers, "workoutUsers": workoutUsers, "financeUsers": financeUsers }
 }
 
-export const communityServices = { getCommunity, createPost, getCommunityRequest, acceptRequest, blockRequest, getCommunityPosts, getCommunityPostByUserId, editPost, deletePost,isValidCommunityUser, getCommunityUsers }
+export const communityServices = { getCommunity, createPost, getCommunityRequest, acceptRequest, blockRequest, getCommunityPosts, getCommunityPostByUserId, editPost, deletePost, isValidCommunityUser, getCommunityUsers }

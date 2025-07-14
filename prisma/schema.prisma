@@ -56,8 +56,7 @@ model User {
   mealPlan               MealPlan[]
   order                  Order[]
   Message                Message[]        @relation("UserMessages")
-  Conversation1          Conversation[]   @relation("User1Conversations")
-  Conversation2          Conversation[]   @relation("User2Conversations")
+  GroupMember            GroupMember[]    @relation("UserGroupMembers")
   donation               Donation[] 
 }
 
@@ -221,35 +220,64 @@ model Like {
   updatedAt DateTime @updatedAt
 }
 
-model Conversation {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  user1Id   String    @db.ObjectId
-  user2Id   String    @db.ObjectId
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  // Relationships
-  messages  Message[] @relation("ConversationMessages")
-  user1     User      @relation("User1Conversations", fields: [user1Id], references: [id], onDelete: Cascade)
-  user2     User      @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
+// model Conversation {
+//   id        String    @id @default(auto()) @map("_id") @db.ObjectId
+//   user1Id   String    @db.ObjectId
+//   user2Id   String    @db.ObjectId
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime  @updatedAt
+//   // Relationships
+//   messages  Message[] @relation("ConversationMessages")
+//   user1     User      @relation("User1Conversations", fields: [user1Id], references: [id], onDelete: Cascade)
+//   user2     User      @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
 
-  @@map("conversations")
+//   @@map("conversations")
+// }
+
+// model Message {
+//   id             String   @id @default(auto()) @map("_id") @db.ObjectId
+//   conversationId String   @db.ObjectId
+//   senderId       String   @db.ObjectId
+//   receiverId     String   @db.ObjectId
+//   content        String?
+//   isRead         Boolean  @default(false)
+//   createdAt      DateTime @default(now())
+//   updatedAt      DateTime @updatedAt
+
+//   // Relationships
+//   sender       User         @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+//   conversation Conversation @relation("ConversationMessages", fields: [conversationId], references: [id], onDelete: Cascade)
+
+//   @@map("messages")
+// }
+
+model GroupChat {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  members     GroupMember[]
+  messages    Message[]
+  createdAt   DateTime       @default(now())
+}
+
+model GroupMember {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String         @db.ObjectId
+  groupChatId String         @db.ObjectId
+  user        User           @relation("UserGroupMembers", fields: [userId], references: [id], onDelete: Cascade)
+  groupChat   GroupChat      @relation(fields: [groupChatId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime       @default(now())
+
+  @@unique([userId, groupChatId]) // prevent duplicate entries
 }
 
 model Message {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  conversationId String   @db.ObjectId
-  senderId       String   @db.ObjectId
-  receiverId     String   @db.ObjectId
-  content        String?
-  isRead         Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  // Relationships
-  sender       User         @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  conversation Conversation @relation("ConversationMessages", fields: [conversationId], references: [id], onDelete: Cascade)
-
-  @@map("messages")
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
+  senderId    String         @db.ObjectId
+  groupChatId String         @db.ObjectId
+  sender      User           @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade )
+  groupChat   GroupChat      @relation(fields: [groupChatId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
 }
 
 model Notifications {

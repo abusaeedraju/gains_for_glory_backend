@@ -25,6 +25,7 @@ export const PrismaConnection = async () => {
                 referCode: 123456
             }
         })
-        return
+        return createUser
     }
+    return User
 }

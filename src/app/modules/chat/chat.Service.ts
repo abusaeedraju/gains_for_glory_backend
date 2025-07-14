@@ -11,33 +11,125 @@ import { Request } from "express";
 // import { fileUploader } from "../../helpers/fileUploader";
 
 const prisma = new PrismaClient();
+export const createGroup = async (defaultUserIds: string[]) => {
+  const defaultGroups = [
+    'Bible Study Chat',
+    'Workout Study Chat',
+    'Finance Study Chat',
+  ];
 
+  for (const name of defaultGroups) {
+    const existing = await prisma.groupChat.findFirst({
+      where: { name },
+    });
 
-// Create a new conversation between two users
-const createConversationIntoDB = async (user1Id: string, user2Id: string) => {
-  // Check if a conversation already exists between these two users
-  const existingConversation = await prisma.conversation.findFirst({
-    where: {
-      OR: [
-        { user1Id: user1Id, user2Id: user2Id },
-        { user1Id: user2Id, user2Id: user1Id },
-      ],
-    },
+    if (!existing) {
+      await prisma.groupChat.create({
+        data: {
+          name,
+          members: {
+            create: defaultUserIds.map((userId) => ({
+              user: { connect: { id: userId } },
+            })),
+          },
+        },
+      });
+    }
+  }
+};
+
+export const joinGroup = async (userId: string, groupChatId: string) => {
+  // Check if already a member
+  const existing = await prisma.groupMember.findFirst({
+    where: { userId, groupChatId }
   });
 
-  if (existingConversation) {
-    return existingConversation; // If it exists, return the existing conversation
+  if (existing) {
+    throw new Error('User is already a member of this group');
   }
 
-  // Create a new conversation if it doesn't exist
-  const result = await prisma.conversation.create({
+  const newMember = await prisma.groupMember.create({
     data: {
-      user1Id,
-      user2Id,
+      user: { connect: { id: userId } },
+      groupChat: { connect: { id: groupChatId } },
+    },
+    include: {
+      groupChat: true,
+      user: true,
     },
   });
-  return result;
+
+  return newMember;
 };
+
+export const sendMessage = async (
+  senderId: string,
+  groupChatId: string,
+  content: string
+) => {
+  const message = await prisma.message.create({
+    data: {
+      senderId,
+      groupChatId,
+      content,
+    },
+    include: {
+      sender: true,
+    },
+  });
+  return message;
+};
+
+export const getGroupMessages = async (groupChatId: string) => {
+  const messages = await prisma.message.findMany({
+    where: { groupChatId },
+    orderBy: { createdAt: 'asc' },
+    include: {
+      sender: true,
+    },
+  });
+  return messages;
+};
+
+export const getUserGroups = async (userId: string) => {
+  const groups = await prisma.groupMember.findMany({
+    where: { userId },
+    include: {
+      groupChat: {
+        include: {
+          members: { include: { user: true } },
+        },
+      },
+    },
+  });
+  return groups.map(member => member.groupChat);
+};
+
+// Create a new conversation between two users
+// const createConversationIntoDB = async (user1Id: string, user2Id: string) => {
+//   // Check if a conversation already exists between these two users
+//   const existingConversation = await prisma.conversation.findFirst({
+//     where: {
+//       OR: [
+//         { user1Id: user1Id, user2Id: user2Id },
+//         { user1Id: user2Id, user2Id: user1Id },
+//       ],
+//     },
+//   });
+
+//   if (existingConversation) {
+//     return existingConversation; // If it exists, return the existing conversation
+//   }
+
+//   // Create a new conversation if it doesn't exist
+//   const result = await prisma.conversation.create({
+//     data: {
+//       user1Id,
+//       user2Id,
+//     },
+//   });
+//   return result;
+// };
 
 // // Get all conversations for a specific user
 // const getConversationsByUserIdIntoDB = async (userId: string) => {
@@ -310,7 +402,7 @@ const chatWithAI = async (payload: any, id: string) => {
 };
 
 export const chatServices = {
-   createConversationIntoDB,
+   // createConversationIntoDB,
   // getConversationsByUserIdIntoDB,
   // getMessagesByConversationIntoDB,
   // createMessageIntoDB,
@@ -321,6 +413,11 @@ export const chatServices = {
   // getMyChat,
   // searchUser, 
   chatWithAI,
+  createGroup,
+  sendMessage,
+  getGroupMessages,
+  getUserGroups,
+  joinGroup,
   // createConversation,
   // sendMessage,
   // getMessages,
