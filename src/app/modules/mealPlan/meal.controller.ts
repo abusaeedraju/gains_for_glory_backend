@@ -3,6 +3,7 @@ import { mealPlanService } from "./meal.service";
 import { Request, Response } from "express";
 import sendResponse from "../../middleware/sendResponse";
 import { StatusCodes } from "http-status-codes";
+import { checkAndTrackDailyUsage } from "../../helper/restrictRoute";
 const createMealPlanController = catchAsync(async (req: Request, res: Response) => {
     const body = req?.body as any
     const image = req?.file as any
@@ -64,6 +65,15 @@ const deleteMealPlanController = catchAsync(async (req: Request, res: Response) 
 
 const aiMealPlanController = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.id
+    const data = await checkAndTrackDailyUsage(userId, 'ai-meal');
+    if(data){
+        sendResponse(res, {
+            statusCode: StatusCodes.OK,
+            message: "Meal plan retrieved successfully",
+            data: data,
+            success: true,
+        });
+    }else{
     const result = await mealPlanService.aiMealPlan(userId);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
@@ -71,6 +81,7 @@ const aiMealPlanController = catchAsync(async (req: Request, res: Response) => {
         data: result,
         success: true,
     });
+    }
 })
 
 const aiFoodScannerController = catchAsync(async (req: Request, res: Response) => {
@@ -90,5 +101,5 @@ export const mealPlanController = {
     deleteMealPlanController,
     getMealPlanByIdController,
     aiMealPlanController,
-    aiFoodScannerController 
+    aiFoodScannerController
 }

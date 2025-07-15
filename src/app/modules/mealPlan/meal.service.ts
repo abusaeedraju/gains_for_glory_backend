@@ -70,48 +70,56 @@ const aiMealPlan = async (userId: string) => {
         },
         body: JSON.stringify(payload),
     });
-    const data = await response.json();
+    const data: any = await response.json();
 
-    return data;
+    await prisma.aiMealPlan.deleteMany({ where: { userId } });
+    const result = await prisma.aiMealPlan.create({
+        data: {
+            userId: userId, // replace with your actual user ID
+            mealData: data.meal_plan, // or wherever the structured data lives
+        }
+    });
+
+    return result.mealData;
 }
 
 interface ImageFile {
     location: string;
     name?: string;
 }
-  
-  export const aiFoodScanner = async (imageFile: ImageFile) => {
+
+export const aiFoodScanner = async (imageFile: ImageFile) => {
     console.log("Downloading image from: ", imageFile.location);
-  
+
     // Step 1: Download the remote image and save to temp file
     const response = await fetch(imageFile.location);
     if (!response.ok) throw new Error("Failed to download image");
-  
+
     const buffer = await response.arrayBuffer();
     const fileName = imageFile.name || `image-${uuidv4()}.jpg`;
     const filePath = path.join(__dirname, fileName);
-  
+
     fs.writeFileSync(filePath, Buffer.from(buffer)); // Save locally
-  
+
     // Step 2: Prepare form-data with fs stream
     const form = new FormData();
     form.append("image", fs.createReadStream(filePath)); // ✅ Send file stream
-  
+
     // Step 3: Call the external API
     const scanResponse = await fetch("https://gymapp-tukx.onrender.com/api/v1/food-scanner", {
-      method: "POST",
-      headers: form.getHeaders(), // Must include Content-Type with boundary
-      body: form,
+        method: "POST",
+        headers: form.getHeaders(), // Must include Content-Type with boundary
+        body: form,
     });
-  
+
     const data = await scanResponse.json();
-  
+
     // Step 4: Cleanup (optional)
     fs.unlinkSync(filePath); // Delete temp file after upload
-  
+
     return data;
-  };
-  
+};
+
 
 export const mealPlanService = {
     createMealPlan,

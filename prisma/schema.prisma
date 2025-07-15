@@ -58,6 +58,8 @@ model User {
   Message                Message[]        @relation("UserMessages")
   GroupMember            GroupMember[]    @relation("UserGroupMembers")
   donation               Donation[] 
+  dailyUsage             DailyUsage[]
+  aiMealPlan             AiMealPlan[]
 }
 
 model Otp {
@@ -87,6 +89,16 @@ model MealPlan {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model AiMealPlan {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealData  Json     // Stores entire meal plan JSON (breakfast, lunch, etc.)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 
 model Product {
   id                 String     @id @default(auto()) @map("_id") @db.ObjectId
@@ -260,6 +272,16 @@ model Notifications {
   updatedAt  DateTime @updatedAt
   receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User?    @relation("senderDetails", fields: [senderId], references: [id], onDelete: Cascade)
+}
+model DailyUsage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  route     String
+  date      DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, route, date])
 }
 
 model Bible {
