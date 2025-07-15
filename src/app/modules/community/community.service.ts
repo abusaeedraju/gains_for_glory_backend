@@ -119,7 +119,15 @@ const acceptRequest = async (userId: string, community: string) => {
 
     // Step 1: Get all group chats
     const groupChats = await prisma.groupChat.findMany();
-
+const isGroupMember = await prisma.groupMember.findFirst({
+    where: {
+        userId: userId,
+        groupChatId: {
+            in: groupChats.map(group => group.id)
+        }   
+    },
+})
+if (!isGroupMember) {
     // Step 2: Add this user to all groups
     await prisma.groupMember.createMany({
         data: groupChats.map(group => ({
@@ -127,7 +135,7 @@ const acceptRequest = async (userId: string, community: string) => {
             groupChatId: group.id,
         }))
     });
-
+}   
 
 
     return result
