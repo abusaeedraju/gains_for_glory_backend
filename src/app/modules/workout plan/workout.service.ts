@@ -29,7 +29,40 @@ const aiWorkoutPlan = async (userId: string) => {
         body: JSON.stringify(payload),
     });
     const data = await response.json();
-    return data;
+
+
+    await prisma.aiWorkoutPlan.deleteMany({ where: { userId } });
+    // const result = await prisma.aiWorkoutPlan.create({
+    //     data: {
+    //         userId: userId, // replace with your actual user ID
+    //         workoutData: data.workout_plan[0].warm_up, // or wherever the structured data lives
+    //     }
+    // });
+    console.log(data)
+    const result = await prisma.aiWorkoutPlan.create({
+       data: {
+           userId: userId,
+           workoutData: data.workout_plan[0].warm_up
+       }
+    });
+    const result2 = await prisma.aiWorkoutPlan.create({
+        data: {
+            userId: userId,
+            workoutData: data.workout_plan[0].warm_up
+        }
+     });
+     const result3 = await prisma.aiWorkoutPlan.create({
+        data: {
+            userId: userId,
+            workoutData: data.workout_plan[0].warm_up
+        }
+     });
+
+    return {result,result2,result3}   ;
 }
 
-export const workoutService = { aiWorkoutPlan }
+const markAsComplete = async (id: string, userId: string, complete: boolean) => {
+    await prisma.aiWorkoutPlan.update({ where: { id, userId }, data: { workoutData: { warmUp: {mart_complete: complete} } } });
+}   
+
+export const workoutService = { aiWorkoutPlan, markAsComplete }

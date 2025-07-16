@@ -19,6 +19,22 @@ export const checkAndTrackDailyUsage = async (userId: string, route: string) => 
     });
 
     if (exists) {
+        if(route === 'ai-meal-plan'){
+            const data = await prisma.aiMealPlan.findFirst({
+                where: {
+                    userId,
+                },
+            });
+            return data?.mealData;
+        }
+        if(route === 'ai-workout-plan'){
+            const data = await prisma.aiWorkoutPlan.findFirst({
+                where: {
+                    userId,
+                },
+            });
+            return data;
+        }   
         const data = await prisma.aiMealPlan.findFirst({
             where: {
                 userId,

@@ -7,9 +7,18 @@ import { checkAndTrackDailyUsage } from "../../helper/restrictRoute"
 
 const aiWorkoutPlanController = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.user
-    await checkAndTrackDailyUsage(req.user.id, 'ai-workout-plan');
+    const data = await checkAndTrackDailyUsage(req.user.id, 'ai-workout-plan');
+    if(data){
+        sendResponse(res, {
+            statusCode: StatusCodes.OK,
+            message: "Workout plan retrieved successfully",
+            data: data,
+            success: true,
+        });
+    }else{
     const result = await workoutService.aiWorkoutPlan(id)
     sendResponse(res, { statusCode: StatusCodes.OK, message: "Workout plan created successfully", data: result, success: true })
+    }
 })  
 
 export const workoutController = {

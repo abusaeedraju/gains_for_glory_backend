@@ -60,6 +60,7 @@ model User {
   donation               Donation[] 
   dailyUsage             DailyUsage[]
   aiMealPlan             AiMealPlan[]
+  aiWorkoutPlan          AiWorkoutPlan[]
 }
 
 model Otp {
@@ -95,6 +96,16 @@ model AiMealPlan {
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   mealData  Json     // Stores entire meal plan JSON (breakfast, lunch, etc.)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model AiWorkoutPlan {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutData  Json     // Stores entire workout plan JSON (breakfast, lunch, etc.)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

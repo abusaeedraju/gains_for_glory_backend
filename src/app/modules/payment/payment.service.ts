@@ -1,7 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../../utils/prisma";
 import ApiError from "../../error/ApiErrors";
-import Stripe from "stripe";
 import { stripe } from "../../../config/stripe";
 import { createStripeCustomerAcc } from "../../helper/createStripeCustomerAcc";
 
@@ -24,24 +23,20 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
     throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
   }
 
-  if (findUser?.customerId === null) {
-    await createStripeCustomerAcc(findUser);
+  // Create Stripe customer if not exists
+  let updatedUser;
+  if (!findUser.customerId) {
+    updatedUser = await createStripeCustomerAcc(findUser); // ✅ Must return updated user with customerId
   }
 
-  const allCartId = await prisma.cart.findMany({
-    where: {
-      userId: userId
-    },
-    select: {
-      id: true,
-      productId: true
-    }
-  })
+  const customerId = findUser.customerId || updatedUser?.customerId;
+  if (!customerId) {
+    throw new ApiError(StatusCodes.EXPECTATION_FAILED, "Missing Stripe customer ID");
+  }
 
-  const findProductFromCart = await prisma.cart.findMany({
-    where: {
-      id: { in: allCartId.map((cart) => cart.id) }
-    },
+  // Fetch cart items
+  const cartItems = await prisma.cart.findMany({
+    where: { userId },
     select: {
       id: true,
       productId: true,
@@ -55,15 +50,21 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
     },
   });
 
+  if (cartItems.length === 0) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Cart is empty");
+  }
+
+  // Attach payment method
   await stripe.paymentMethods.attach(payload.paymentMethodId, {
-    customer: findUser?.customerId as string,
+    customer: customerId,
   });
 
+  // Create Stripe payment intent
   const payment = await stripe.paymentIntents.create({
     amount: Math.round(payload.amount * 100),
-    currency: payload?.paymentMethod || "usd",
+    currency: "usd", // ✅ FIXED: don't use paymentMethod as currency
     payment_method: payload.paymentMethodId,
-    customer: findUser?.customerId as string,
+    customer: customerId,
     confirm: true,
     automatic_payment_methods: {
       enabled: true,
@@ -75,18 +76,18 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, "Payment failed");
   }
 
-
-
+  // Save payment
   await prisma.payment.create({
     data: {
-      userId: userId,
+      userId,
       amount: payload.amount,
       paymentMethod: payload.paymentMethod,
-      productId: findProductFromCart.map(p => p.productId),
+      productId: cartItems.map(p => p.productId),
     },
   });
 
-  const orderData = findProductFromCart.map((item) => ({
+  // Create orders
+  const orderData = cartItems.map((item) => ({
     userId,
     paymentId: payment.id,
     paymentMethod: payload.paymentMethod,
@@ -102,24 +103,17 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
     address: payload.address,
   }));
 
-  if (orderData.length === 0) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "No valid products found to create orders.");
-  }
-
   const orders = await prisma.order.createMany({
     data: orderData,
   });
 
+  // Clear cart
   await prisma.cart.deleteMany({
-    where: {
-      userId: userId
-    }
-  })
+    where: { userId },
+  });
 
   return orders;
-
-
-}
+};
 
 
 // Donation
@@ -136,20 +130,20 @@ const createIntentInStripeForDonation = async (payload: payloadTypeForDonation, 
     throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
   }
 
+  let updatedUser;
   if (findUser?.customerId === null) {
-    await createStripeCustomerAcc(findUser);
+    updatedUser = await createStripeCustomerAcc(findUser);
   }
 
-
   await stripe.paymentMethods.attach(payload.paymentMethodId, {
-    customer: findUser?.customerId as string,
+    customer: findUser?.customerId || updatedUser?.customerId as string,
   });
 
   const payment = await stripe.paymentIntents.create({
     amount: Math.round(payload.amount * 100),
     currency: payload?.paymentMethod || "usd",
     payment_method: payload.paymentMethodId,
-    customer: findUser?.customerId as string,
+    customer: findUser?.customerId || updatedUser?.customerId  as string,
     confirm: true,
     automatic_payment_methods: {
       enabled: true,
