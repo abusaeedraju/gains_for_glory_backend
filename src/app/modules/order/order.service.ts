@@ -23,11 +23,16 @@ const getMyOrder = async (userId: string) => {
             quantity: true,
             orderStatus: true,
             createdAt: true,
-            
-        }  ,
+            product: {
+                select: {
+                    image: true
+                }
+            }
+
+        },
         orderBy: {
             createdAt: "desc"
-        } 
+        }
     })
     return result
 }

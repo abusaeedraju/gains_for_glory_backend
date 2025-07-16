@@ -1,3 +1,4 @@
+import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../../utils/prisma";
 import ApiError from "../../error/ApiErrors";
 
@@ -20,7 +21,7 @@ const aiWorkoutPlan = async (userId: string) => {
         "workout_frequency": user?.workOutDaysInWeek,
         "date_of_birth": user?.dateOfBirth
     }
-     
+
     const response = await fetch("https://gym-deploy-nfjx.onrender.com/api/v1/workout-planner", {
         method: "POST",
         headers: {
@@ -38,31 +39,47 @@ const aiWorkoutPlan = async (userId: string) => {
     //         workoutData: data.workout_plan[0].warm_up, // or wherever the structured data lives
     //     }
     // });
-    console.log(data)
-    const result = await prisma.aiWorkoutPlan.create({
-       data: {
-           userId: userId,
-           workoutData: data.workout_plan[0].warm_up
-       }
+    const result1 = await prisma.aiWorkoutPlan.create({
+        data: {
+            userId: userId,
+            workoutData: data.workout_plan[0].warm_up
+        }
     });
     const result2 = await prisma.aiWorkoutPlan.create({
         data: {
             userId: userId,
-            workoutData: data.workout_plan[0].warm_up
+            workoutData: data.workout_plan[0].main_routine
         }
-     });
-     const result3 = await prisma.aiWorkoutPlan.create({
+    });
+    const result3 = await prisma.aiWorkoutPlan.create({
         data: {
             userId: userId,
-            workoutData: data.workout_plan[0].warm_up
+            workoutData: data.workout_plan[0].cool_down
         }
-     });
-
-    return {result,result2,result3}   ;
+    });
+    const result = [result1, result2, result3]
+    return result;
 }
 
-const markAsComplete = async (id: string, userId: string, complete: boolean) => {
-    await prisma.aiWorkoutPlan.update({ where: { id, userId }, data: { workoutData: { warmUp: {mart_complete: complete} } } });
-}   
+const markAsComplete = async (id: string, userId: string, payload: any) => {
+    const findData = await prisma.aiWorkoutPlan.findUnique({ where: { id, userId } })
+    if (!findData) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "Workout plan not found")
+    }
+    const result = await prisma.aiWorkoutPlan.update({
+        where: { id, userId },
+        data: { workoutData: { mart_complete: payload.mark_complete } },
+    });
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            referPoint: {
+                increment: payload.point
+            }
+        },
+    });
+    return result;
+}
 
 export const workoutService = { aiWorkoutPlan, markAsComplete }
