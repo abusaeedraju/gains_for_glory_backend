@@ -13,6 +13,7 @@ import { paymentRoutes } from "../modules/payment/payment.routes"
 import { orderRouter } from "../modules/order/order.route"
 import { bibleRoutes } from "../modules/daily Bible/bible.route"
 import { workoutRoutes } from "../modules/workout plan/workout.route"
+import { NotificationsRouters } from "../modules/notifications/notification.routes"
 const router = Router()
 const routes = [
     {
@@ -70,7 +71,11 @@ const routes = [
     {
         path: "/workout",
         component: workoutRoutes
-    }
+    },
+    {
+        path: "/notification",
+        component: NotificationsRouters
+    },      
 ]
 
 routes.forEach(route => router.use(route.path, route.component))

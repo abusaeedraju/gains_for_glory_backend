@@ -2,6 +2,7 @@
 import { StatusCodes } from "http-status-codes"
 import ApiError from "../../error/ApiErrors"
 import { prisma } from "../../../utils/prisma"
+import { notificationServices } from "../notifications/notification.service"
 
 const createLike = async (userId: string, postId: string) => {
     if (!userId) {
@@ -46,11 +47,29 @@ const createLike = async (userId: string, postId: string) => {
             data: {
                 userId: userId,
                 postId: postId
+            },
+            select: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                }
             }
         })
         const post = await prisma.post.findUnique({
             where: {
                 id: postId
+            },
+            select: {
+                totalLike: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    }
+                }
             }
         })
         if (!post) {
@@ -64,6 +83,27 @@ const createLike = async (userId: string, postId: string) => {
                 totalLike: post.totalLike + 1
             }
         })
+        //     const post = await prisma.post.findUnique({
+        //     where: {
+        //         id: postId
+        //     },
+        //     select: {
+        //         user: {
+        //             select: {
+        //                 id: true,
+        //                 name: true,
+        //                 image: true,
+        //             }
+        //         }
+        //     }
+        // })
+        // if (!post) {
+        //     throw new ApiError(StatusCodes.NOT_FOUND, "post not found")
+        // }
+        await notificationServices.sendSingleNotification(userId, post.user.id, {
+            title: "Liked your post",
+            body: `${result.user.name} liked your post`,
+        }); 
         return "liked"
     } catch (error) {
         throw new ApiError(StatusCodes.NOT_FOUND, "like not found")

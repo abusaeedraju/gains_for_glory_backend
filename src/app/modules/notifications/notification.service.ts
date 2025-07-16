@@ -120,10 +120,6 @@ const getNotificationsFromDB = async (req: any) => {
     orderBy: { createdAt: "desc" },
   });
 
-  if (notifications.length === 0) {
-    throw new ApiError(404, "No notifications found for the user");
-  }
-
   return notifications;
 };
 
