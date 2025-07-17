@@ -111,7 +111,7 @@ const getMyChatGroup = async (userId: string, communityName: string) => {
 
 const chatWithAI = async (payload: any, id: string) => {
 
-  const response = await fetch("https://gymapp-tukx.onrender.com/api/v1/coach", {
+  const response = await fetch("https://gym-update.onrender.com/api/v1/coach", {
     method: "POST",
     headers: {
       "Content-Type": "application/json", // 👈 Required for JSON payload

@@ -63,7 +63,7 @@ const aiMealPlan = async (userId: string) => {
         "date_of_birth": user?.dateOfBirth
     }
 
-    const response = await fetch("https://gymapp-tukx.onrender.com/api/v1/meal-planner", {
+    const response = await fetch("https://gym-update.onrender.com/api/v1/meal-planner", {
         method: "POST",
         headers: {
             "Content-Type": "application/json", // 👈 Required for JSON payload
@@ -106,7 +106,7 @@ export const aiFoodScanner = async (imageFile: ImageFile) => {
     form.append("image", fs.createReadStream(filePath)); // ✅ Send file stream
 
     // Step 3: Call the external API
-    const scanResponse = await fetch("https://gymapp-tukx.onrender.com/api/v1/food-scanner", {
+    const scanResponse = await fetch("https://gym-update.onrender.com/api/v1/food-scanner", {
         method: "POST",
         headers: form.getHeaders(), // Must include Content-Type with boundary
         body: form,

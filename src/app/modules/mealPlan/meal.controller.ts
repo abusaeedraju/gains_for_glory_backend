@@ -65,7 +65,7 @@ const deleteMealPlanController = catchAsync(async (req: Request, res: Response) 
 
 const aiMealPlanController = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.id
-    const data = await checkAndTrackDailyUsage(userId, 'ai-meal');
+    const data = await checkAndTrackDailyUsage(userId, 'ai-meal-plan');
     if(data){
         sendResponse(res, {
             statusCode: StatusCodes.OK,
@@ -89,7 +89,7 @@ const aiFoodScannerController = catchAsync(async (req: Request, res: Response) =
     const result = await mealPlanService.aiFoodScanner(image);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
-        message: "Meal plan retrieved successfully",
+        message: "Food scanner successfully",
         data: result,
         success: true,
     });
