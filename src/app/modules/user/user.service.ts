@@ -163,7 +163,7 @@ const getAllUsers = async () => {
 const getFreeUsers = async () => {
     const result = await prisma.user.findMany({
         where: {
-            subscription: "FREE"
+            subscription: "BASIC"
         }
     })
     return result

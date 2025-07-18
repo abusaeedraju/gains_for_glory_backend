@@ -11,6 +11,6 @@ route.get('/donation', auth(Role.USER), paymentController.getDonationController)
 // route.post('/save-card', auth(Role.USER), paymentController.saveCardController)
 // route.get('/get-card', auth(Role.USER), paymentController.getSaveCardController)
 // route.delete('/delete-card', auth(Role.USER), paymentController.deleteCardController)
-// route.post("/subscribe", auth(), paymentController.subscribeToPlanController)
+route.post("/subscribe", auth(Role.USER), paymentController.subscribeToPlanController)
 
 export const paymentRoutes = route

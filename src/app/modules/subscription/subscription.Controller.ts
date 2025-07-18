@@ -8,7 +8,7 @@ const createSubscriptionController = catchAsync(async (req: Request, res: Respon
 
     const body = req.body
     const result = await subscriptionService.createSubscriptionIntoDB(body)
-    sendResponse(res, { statusCode: StatusCodes.CREATED, message: "Please check your email for verification", data: result, success: true })
+    sendResponse(res, { statusCode: StatusCodes.CREATED, message: "Subscription created successfully", data: result, success: true })
 
 })
 

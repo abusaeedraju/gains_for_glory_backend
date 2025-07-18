@@ -89,25 +89,23 @@ const getDonationController = catchAsync(
 //   });
 // });
 
-// const subscribeToPlanController = catchAsync(
-//   async (req: Request, res: Response) => {
-//     const { id: userId } = req.user;
-//     const payload = req.body as {
-//       paymentMethodId: string;
-//       subscriptionId: string;
-//     };
-//     const result = await paymentService.subscribeToPlanFromStripe({
-//       ...payload,
-//       userId,
-//     });
-//     sendResponse(res, {
-//       statusCode: StatusCodes.OK,
-//       message: "Plan subscribed successfully",
-//       data: result,
-//       success: true,
-//     });
-//   }
-// );
+const subscribeToPlanController = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id: userId } = req.user;
+    const payload = req.body as {
+      paymentMethodId: string;
+      subscriptionId: string;
+    };
+    const body = {...payload, userId}
+    const result = await paymentService.subscribeToPlanFromStripe(body);
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      message: "Plan subscribed successfully",
+      data: result,
+      success: true,
+    });
+  }
+);
 
 export const paymentController = {
   createPaymentController,
@@ -116,5 +114,5 @@ export const paymentController = {
   // saveCardController,
   // getSaveCardController,
   // deleteCardController,
-  // subscribeToPlanController,
+  subscribeToPlanController,
 };

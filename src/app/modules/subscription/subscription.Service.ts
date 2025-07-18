@@ -26,6 +26,8 @@ const createSubscriptionIntoDB = async (payload: any) => {
     product: createProductId.id,
   });
 
+  
+
   if (!createPriceInStripe.id) {
     throw new ApiError(
       StatusCodes.EXPECTATION_FAILED,
@@ -42,6 +44,7 @@ const createSubscriptionIntoDB = async (payload: any) => {
       description: payload.description,
       currency: payload.currency,
       interval: payload.interval,
+      interval_count: payload?.interval_count,
     },
   });
 
@@ -99,7 +102,7 @@ const updateSubscriptionIntoDB = async (id: string, payload: any) => {
       stripePriceId: newPrice.id,
       description: payload.description,
       currency: payload.currency,
-    },
+      },
   });
   return subscription;
 };

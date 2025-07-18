@@ -36,17 +36,17 @@ model User {
 
   fcmToken               String?
   image                  String?
-  subscription           SubscriptionPlan @default(FREE)
-  bibleCommunityStatus   CommunityStatus  @default(NONE)
-  workoutCommunityStatus CommunityStatus  @default(NONE)
-  financeCommunityStatus CommunityStatus  @default(NONE)
+  subscription           SubscriptionPlan?   
+  bibleCommunityStatus   CommunityStatus    @default(NONE)
+  workoutCommunityStatus CommunityStatus    @default(NONE)
+  financeCommunityStatus CommunityStatus    @default(NONE)
   connectAccountId       String?
   customerId             String?
-  isVerified             Boolean          @default(false)
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
-  receiver               Notifications[]  @relation("receiverDetails")
-  sender                 Notifications[]  @relation("senderDetails")
+  isVerified             Boolean            @default(false)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+  receiver               Notifications[]    @relation("receiverDetails")
+  sender                 Notifications[]    @relation("senderDetails")
   reviews                Review[]
   cart                   Cart[]
   favorite               Favorite[]
@@ -55,13 +55,13 @@ model User {
   like                   Like[]
   mealPlan               MealPlan[]
   order                  Order[]
-  Message                Message[]        @relation("UserMessages")
-  GroupMember            GroupMember[]    @relation("UserGroupMembers")
-  donation               Donation[] 
+  Message                Message[]          @relation("UserMessages")
+  GroupMember            GroupMember[]      @relation("UserGroupMembers")
+  donation               Donation[]
   dailyUsage             DailyUsage[]
   aiMealPlan             AiMealPlan[]
   aiWorkoutPlan          AiWorkoutPlan[]
-  subscriptionUser       SubscriptionUser[] 
+  subscriptionUser       SubscriptionUser[]
 }
 
 model Otp {
@@ -76,41 +76,39 @@ model Otp {
 }
 
 model MealPlan {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  type      Type
-  protein   Float
-  carbs     Float
-  fats      Float
-  calories  Float
-  image     String
-  note      String
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  type              Type
+  protein           Float
+  carbs             Float
+  fats              Float
+  calories          Float
+  image             String
+  note              String
   preparation_steps String[] @default([])
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  userId            String   @db.ObjectId
+  user              User     @relation(fields: [userId], references: [id])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model AiMealPlan {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mealData  Json     // Stores entire meal plan JSON (breakfast, lunch, etc.)
+  mealData  Json // Stores entire meal plan JSON (breakfast, lunch, etc.)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 
 model AiWorkoutPlan {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workoutData  Json     // Stores entire workout plan JSON (breakfast, lunch, etc.)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutData Json // Stores entire workout plan JSON (breakfast, lunch, etc.)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
-
 
 model Product {
   id                 String     @id @default(auto()) @map("_id") @db.ObjectId
@@ -180,7 +178,7 @@ model Donation {
   userId        String   @db.ObjectId
   amount        Float
   paymentMethod String?
-  status        String    @default("completed")
+  status        String   @default("completed")
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -245,32 +243,32 @@ model Like {
 }
 
 model GroupChat {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  members     GroupMember[]
-  messages    Message[]
-  createdAt   DateTime       @default(now())
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  members   GroupMember[]
+  messages  Message[]
+  createdAt DateTime      @default(now())
 }
 
 model GroupMember {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String         @db.ObjectId
-  groupChatId String         @db.ObjectId
-  user        User           @relation("UserGroupMembers", fields: [userId], references: [id], onDelete: Cascade)
-  groupChat   GroupChat      @relation(fields: [groupChatId], references: [id], onDelete: Cascade)
-  joinedAt    DateTime       @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
+  groupChatId String    @db.ObjectId
+  user        User      @relation("UserGroupMembers", fields: [userId], references: [id], onDelete: Cascade)
+  groupChat   GroupChat @relation(fields: [groupChatId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime  @default(now())
 
   @@unique([userId, groupChatId]) // prevent duplicate entries
 }
 
 model Message {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   content     String
-  senderId    String         @db.ObjectId
-  groupChatId String         @db.ObjectId
-  sender      User           @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade )
-  groupChat   GroupChat      @relation(fields: [groupChatId], references: [id], onDelete: Cascade)
-  createdAt   DateTime       @default(now())
+  senderId    String    @db.ObjectId
+  groupChatId String    @db.ObjectId
+  sender      User      @relation("UserMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  groupChat   GroupChat @relation(fields: [groupChatId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
 }
 
 model Notifications {
@@ -285,13 +283,14 @@ model Notifications {
   receiver   User     @relation("receiverDetails", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User?    @relation("senderDetails", fields: [senderId], references: [id], onDelete: Cascade)
 }
-model DailyUsage {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  route     String
-  date      DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model DailyUsage {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId String   @db.ObjectId
+  route  String
+  date   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, route, date])
 }
@@ -304,8 +303,6 @@ model Bible {
   updatedAt   DateTime @updatedAt
 }
 
-
-
 model Subscription {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
   name             String
@@ -315,6 +312,7 @@ model Subscription {
   description      String
   currency         String
   interval         String?
+  interval_count   Int?
   status           Status            @default(ACTIVE)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -329,12 +327,12 @@ model SubscriptionUser {
   subscriptionStatus String // E.g., "active", "canceled", "incomplete"
   subscriptionStart  DateTime // When the subscription started
   subscriptionEnd    DateTime // When it ends (for trial or cancel)
+  trialEndsAt        DateTime? // When the trial ends
   userDetails        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscriptionPlan   Subscription @relation(fields: [subscriptionPlanId], references: [id], onDelete: Cascade)
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 }
-
 
 enum Role {
   USER
@@ -374,7 +372,6 @@ enum CommunityStatus {
 }
 
 enum SubscriptionPlan {
-  FREE
   BASIC
   PREMIUM
 }

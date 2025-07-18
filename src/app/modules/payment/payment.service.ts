@@ -3,6 +3,7 @@ import { prisma } from "../../../utils/prisma";
 import ApiError from "../../error/ApiErrors";
 import { stripe } from "../../../config/stripe";
 import { createStripeCustomerAcc } from "../../helper/createStripeCustomerAcc";
+import { console } from "inspector";
 
 interface payloadType {
   amount: number;
@@ -130,20 +131,26 @@ const createIntentInStripeForDonation = async (payload: payloadTypeForDonation, 
     throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
   }
 
-  let updatedUser;
-  if (findUser?.customerId === null) {
-    updatedUser = await createStripeCustomerAcc(findUser);
+
+  if (!findUser?.customerId) {
+    await createStripeCustomerAcc(findUser);
   }
 
   await stripe.paymentMethods.attach(payload.paymentMethodId, {
-    customer: findUser?.customerId || updatedUser?.customerId as string,
+    customer: findUser?.customerId as string,
+  });
+
+  await stripe.customers.update(findUser.customerId as string, {
+    invoice_settings: {
+      default_payment_method: payload.paymentMethodId,
+    },
   });
 
   const payment = await stripe.paymentIntents.create({
     amount: Math.round(payload.amount * 100),
     currency: payload?.paymentMethod || "usd",
     payment_method: payload.paymentMethodId,
-    customer: findUser?.customerId || updatedUser?.customerId  as string,
+    customer: findUser?.customerId as string,
     confirm: true,
     automatic_payment_methods: {
       enabled: true,
@@ -175,7 +182,7 @@ const getDonation = async (userId: string) => {
   }
   const donation = await prisma.donation.findMany({ where: { userId } });
   return donation;
-} 
+}
 
 
 /* const saveCardInStripe = async (payload: {
@@ -411,23 +418,35 @@ const getDonation = async (userId: string) => {
   return payment;
 }; */
 
-/* const subscribeToPlanFromStripe = async (payload: {
-  subscriptionId: string;
-  userId: string;
-  paymentMethodId: string;
-}) => {
+const subscribeToPlanFromStripe = async (payload: any) => {
+
+  console.log("hello");
+
+  console.log("payload", payload)
   const findUser = await prisma.user.findUnique({
     where: {
       id: payload.userId,
     },
   });
+  console.log("findUser", findUser)
   if (!findUser) {
     throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
   }
 
-  if (findUser?.customerId === null) {
+
+  if (!findUser?.customerId) {
     await createStripeCustomerAcc(findUser);
   }
+
+  await stripe.paymentMethods.attach(payload.paymentMethodId, {
+    customer: findUser?.customerId as string,
+  });
+
+  await stripe.customers.update(findUser.customerId as string, {
+    invoice_settings: {
+      default_payment_method: payload.paymentMethodId,
+    },
+  });
 
   const findSubscription = await prisma.subscription.findUnique({
     where: {
@@ -438,22 +457,16 @@ const getDonation = async (userId: string) => {
     throw new ApiError(StatusCodes.NOT_FOUND, "Subscription not found!");
   }
 
-  await stripe.paymentMethods.attach(payload.paymentMethodId, {
-    customer: findUser.customerId as string,
-  });
-
-  await stripe.customers.update(findUser.customerId as string, {
-    invoice_settings: {
-      default_payment_method: payload.paymentMethodId,
-    },
-  });
 
   const purchasePlan = (await stripe.subscriptions.create({
     customer: findUser.customerId as string,
     items: [{ price: findSubscription.stripePriceId }],
+    trial_period_days: 30,
   })) as any;
 
   const subscriptionItem = purchasePlan.items.data[0];
+
+  console.log("subscriptionItem", subscriptionItem);
 
   const updateUserPlan = await prisma.subscriptionUser.upsert({
     where: {
@@ -473,6 +486,7 @@ const getDonation = async (userId: string) => {
       subscriptionStatus: purchasePlan.status,
       subscriptionStart: new Date(subscriptionItem.current_period_start * 1000),
       subscriptionEnd: new Date(subscriptionItem.current_period_end * 1000),
+      trialEndsAt: new Date(purchasePlan.trial_end * 1000),
     },
   });
 
@@ -481,14 +495,14 @@ const getDonation = async (userId: string) => {
       id: payload.userId,
     },
     data: {
-      subscriptionPlan:
-        findSubscription.name.split(" ")[0] == "Basic" ? "BASIC" : "PRO",
+      subscription:
+        findSubscription.name.split(" ")[0] == "Basic" ? "BASIC" : "PREMIUM",
     },
   });
 
   return updateUserPlan;
 
-}; */
+};
 
 export const paymentService = {
   createIntentInStripe,
@@ -499,6 +513,6 @@ export const paymentService = {
     deleteCardFromStripe,
     splitPaymentFromStripe,
     transferAmountFromStripe,
-    refundPaymentFromStripe,
-    subscribeToPlanFromStripe, */
+    refundPaymentFromStripe,*/
+  subscribeToPlanFromStripe,
 };
