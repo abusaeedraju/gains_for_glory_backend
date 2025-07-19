@@ -30,10 +30,8 @@ const deleteSubscriptionController = catchAsync(async (req: Request, res: Respon
 
 const getAllSubscriptionsController = catchAsync(async (req: Request, res: Response) => {
 
-    const { id } = req.user
-    const result = await subscriptionService.getAllSubscriptionsFromDB(id)
+    const result = await subscriptionService.getAllSubscriptionsFromDB()
     sendResponse(res, { statusCode: StatusCodes.OK, message: "Subscriptions retrieved successfully", data: result, success: true })
 })
-
 
 export const subscriptionController = { createSubscriptionController, updateSubscriptionController, deleteSubscriptionController, getAllSubscriptionsController }

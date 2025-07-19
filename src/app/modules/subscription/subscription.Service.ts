@@ -132,12 +132,8 @@ const deleteSubscriptionIntoDB = async (id: string) => {
   return subscription;
 };
 
-const getAllSubscriptionsFromDB = async (id: string) => {
-  const findUser = await prisma.user.findUnique({
-    where: {
-      id,
-    },
-  });
+const getAllSubscriptionsFromDB = async () => {
+
   const subscriptions = await prisma.subscription.findMany();
 
   return subscriptions;

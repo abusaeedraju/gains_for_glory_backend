@@ -8,6 +8,6 @@ route.post('/create', auth(Role.ADMIN), subscriptionController.createSubscriptio
 route.put('/update/:id', auth(Role.ADMIN), subscriptionController.updateSubscriptionController)
 route.delete('/delete/:id', auth(Role.ADMIN), subscriptionController.deleteSubscriptionController)
 
-route.get('/', auth(), subscriptionController.getAllSubscriptionsController)
+route.get('/', subscriptionController.getAllSubscriptionsController)
 
 export const subscriptionRoutes = route   

@@ -58,7 +58,7 @@ const getSingleProduct = async (id: string) => {
 
     return { result, avgRating, totalRating }
 }
-const getAllProducts = async () => {
+const getAllProducts = async (searchTerm?: string) => {
 
     const ratings = await prisma.review.groupBy({
         by: ['productId'],
@@ -72,6 +72,12 @@ const getAllProducts = async () => {
 
 
     const products = await prisma.product.findMany({
+        where: {
+            name: {
+                contains: searchTerm,
+                mode: 'insensitive'
+            }
+        },
         include: {
             reviews: true
         }

@@ -22,6 +22,7 @@ const aiWorkoutPlan = async (userId: string) => {
         "date_of_birth": user?.dateOfBirth
     }
 
+   // const response = await fetch("https://gym-update.onrender.com/api/v1/workout-planner", {
     const response = await fetch("https://gym-update.onrender.com/api/v1/workout-planner", {
         method: "POST",
         headers: {

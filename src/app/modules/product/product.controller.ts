@@ -39,7 +39,8 @@ const getSingleProductController = catchAsync(async (req: Request, res: Response
     });
 })
 const getAllProductsController = catchAsync(async (req: Request, res: Response) => {
-    const result = await productServices.getAllProducts();
+    const search = req.query.search as string
+    const result = await productServices.getAllProducts(search);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         message: "Products retrieved successfully",
