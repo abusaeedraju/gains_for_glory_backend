@@ -42,6 +42,7 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
       id: true,
       productId: true,
       quantity: true,
+      size: true,
       productDetails: {
         select: {
           name: true,
@@ -96,6 +97,7 @@ const createIntentInStripe = async (payload: payloadType, userId: string) => {
     productName: item.productDetails.name,
     productPrice: item.productDetails.price,
     quantity: item.quantity,
+    size: item.size,
     name: payload.name,
     email: payload.email,
     number: payload.number,
@@ -420,15 +422,11 @@ const getDonation = async (userId: string) => {
 
 const subscribeToPlanFromStripe = async (payload: any) => {
 
-  console.log("hello");
-
-  console.log("payload", payload)
   const findUser = await prisma.user.findUnique({
     where: {
       id: payload.userId,
     },
   });
-  console.log("findUser", findUser)
   if (!findUser) {
     throw new ApiError(StatusCodes.NOT_FOUND, "User not found!");
   }
@@ -465,8 +463,6 @@ const subscribeToPlanFromStripe = async (payload: any) => {
   })) as any;
 
   const subscriptionItem = purchasePlan.items.data[0];
-
-  console.log("subscriptionItem", subscriptionItem);
 
   const updateUserPlan = await prisma.subscriptionUser.upsert({
     where: {

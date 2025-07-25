@@ -40,16 +40,29 @@ const getMyOrder = async (userId: string) => {
 
 const getAllOrders = async () => {
     const result = await prisma.order.findMany({
+        where: {
+            orderStatus: "PENDING"
+        },
         select: {
             id: true,
-            productId: true,
-            productName: true,
-            productPrice: true,
             quantity: true,
+            size: true,
+            country: true,
+            city: true,
+            address: true,
             orderStatus: true,
             createdAt: true,
+            number: true,
+            user: {
+                select: {
+                    name: true,
+                    email: true,
+                    location: true
+                }
+            },
             product: {
                 select: {
+                    name: true,
                     image: true
                 }
             }
@@ -68,15 +81,13 @@ const updateOrderStatus = async (id: string, payload: any, userId: string) => {
         data: { orderStatus: payload.orderStatus },
         select: {
             id: true,
-            productId: true,
-            productName: true,
-            productPrice: true,
-            quantity: true,
             orderStatus: true,
-            createdAt: true,
-            product: {
+            number: true,
+            user: {
                 select: {
-                    image: true
+                    name: true,
+                    email: true,
+                    location: true
                 }
             },
             userId: true,
