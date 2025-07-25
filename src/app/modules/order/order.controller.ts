@@ -3,6 +3,7 @@ import { orderService } from "./order.service";
 import sendResponse from "../../middleware/sendResponse";
 import { StatusCodes } from "http-status-codes";
 import { Request, Response } from "express";
+import { OrderStatus } from "@prisma/client";
 
 const getMyOrderController = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.id;
@@ -16,7 +17,9 @@ const getMyOrderController = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getAllOrdersController = catchAsync(async (req: Request, res: Response) => {
-    const result = await orderService.getAllOrders();
+
+    const { status } = req.query;
+    const result = await orderService.getAllOrders(status as OrderStatus);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,

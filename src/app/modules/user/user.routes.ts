@@ -19,8 +19,5 @@ route.delete("/delete/me", auth(), userController.deleteProfileController)
 route.get("/refer-code", auth(Role.USER), userController.getMyReferCodeController)
 
 route.get("/all-users", auth(Role.ADMIN), userController.getAllUsersController)
-route.get("/free-users", auth(Role.ADMIN), userController.getFreeUsersController)
-route.get("/premium-users", auth(Role.ADMIN), userController.getPremiumUsersController)
-route.get("/basic-users", auth(Role.ADMIN), userController.getBasicUsersController)
 
 export const userRoutes = route

@@ -2,6 +2,7 @@ import { prisma } from "../../../utils/prisma";
 import ApiError from "../../error/ApiErrors";
 import { StatusCodes } from "http-status-codes";
 import { notificationServices } from "../notifications/notification.service";
+import { OrderStatus } from "@prisma/client";
 
 const getMyOrder = async (userId: string) => {
     const findUser = await prisma.user.findUnique({
@@ -38,10 +39,10 @@ const getMyOrder = async (userId: string) => {
     return result
 }
 
-const getAllOrders = async () => {
+const getAllOrders = async (search?: OrderStatus) => {
     const result = await prisma.order.findMany({
         where: {
-            orderStatus: "PENDING"
+            orderStatus: search
         },
         select: {
             id: true,
