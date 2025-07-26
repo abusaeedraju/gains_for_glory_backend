@@ -56,7 +56,7 @@ const logInFromDB = async (payload: {
     status: findUser.status,
     fcmToken: findUser.fcmToken,
   };
-  const token = jwtHelpers.generateToken(userInfo, { expiresIn: "24 hr" });
+  const token = jwtHelpers.generateToken(userInfo, { expiresIn: "30d" });
   return { accessToken: token, ...userInfo };
 };
 

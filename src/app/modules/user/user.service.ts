@@ -6,6 +6,7 @@ import { OTPFn } from "../../helper/OTPFn";
 import { getImageUrl } from "../../helper/uploadFile";
 import { prisma } from "../../../utils/prisma";
 import { SubscriptionPlan } from "@prisma/client";
+import dayjs from 'dayjs';
 
 const createUserIntoDB = async (payload: any) => {
 
@@ -166,4 +167,85 @@ const getAllUsers = async (search?: SubscriptionPlan) => {
     })
     return result
 }
-export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile, getMyReferCode, getAllUsers }
+
+const rewardPoint = async (id: string, rewardPoint: number) => {
+    const findUser = await prisma.user.findUnique({
+        where: {
+            id
+        }
+    })
+    if (!findUser) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "User not found")
+    }
+    const result = await prisma.user.update({
+        where: {
+            id
+        },
+        data: {
+            referPoint: findUser.referPoint + rewardPoint
+        },
+        select: {
+            id: true,
+            name: true,
+            referPoint: true
+        }
+    })
+    return result
+}
+
+
+const getTotalIncomeByMonth = async (year: number) => {
+    const startOfYear = new Date(`${year}-01-01T00:00:00.000Z`);
+    const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
+
+    // Fetch Payment data
+    const payments = await prisma.payment.findMany({
+        where: {
+            createdAt: {
+                gte: startOfYear,
+                lte: endOfYear,
+            },
+        },
+    });
+
+    // Fetch Donation data
+    const donations = await prisma.donation.findMany({
+        where: {
+            createdAt: {
+                gte: startOfYear,
+                lte: endOfYear,
+            },
+            status: 'completed', // optional filter
+        },
+    });
+
+    const monthly = Array.from({ length: 12 }, (_, i) => {
+        const month = i + 1;
+
+        const monthlyPayments = payments.filter(p => p.createdAt.getUTCMonth() + 1 === month);
+        const monthlyDonations = donations.filter(d => d.createdAt.getUTCMonth() + 1 === month);
+
+        const paymentIncome = monthlyPayments.reduce((sum, p) => sum + p.amount, 0);
+        const donationIncome = monthlyDonations.reduce((sum, d) => sum + d.amount, 0);
+
+        return {
+            month: dayjs().month(i).format('MMM'),
+            income: paymentIncome + donationIncome,
+        };
+    });
+
+    const total = monthly.reduce((sum, m) => sum + m.income, 0);
+   const totalUser = await prisma.user.count({
+    where: {   
+        isVerified: true,
+        status: "ACTIVE"
+    },
+   })   
+    return {
+        total,
+        monthly,
+        totalUser
+    };
+};
+
+export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile, getMyReferCode, getAllUsers, rewardPoint, getTotalIncomeByMonth }

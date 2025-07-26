@@ -171,7 +171,7 @@ const createIntentInStripeForDonation = async (payload: payloadTypeForDonation, 
       paymentMethod: payload.paymentMethod,
     },
   });
-
+  
   return payment;
 
 
@@ -496,6 +496,13 @@ const subscribeToPlanFromStripe = async (payload: any) => {
     },
   });
 
+  await prisma.payment.create({
+    data: {
+      userId: payload.userId,
+      amount: findSubscription?.price,
+      paymentMethod: payload?.paymentMethod,
+    },
+  });
   return updateUserPlan;
 
 };

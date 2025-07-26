@@ -47,4 +47,18 @@ const getAllUsersController = catchAsync(async (req: Request, res: Response) => 
     const result = await userServices.getAllUsers(search as SubscriptionPlan)
     sendResponse(res, { statusCode: StatusCodes.OK, message: "Users retrieved successfully", data: result, success: true })
 })
-export const userController = { createUserController, updateUserController, changePasswordController, getMyProfileController, deleteProfileController, getMyReferCodeController, getAllUsersController } 
+
+const rewardPointController = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.user
+    const body = req.body as any
+    const result = await userServices.rewardPoint(id, body.rewardPoint)
+    sendResponse(res, { statusCode: StatusCodes.OK, message: "User reward point updated successfully", data: result, success: true })
+})
+
+const getTotalIncomeByMonthController = catchAsync(async (req: Request, res: Response) => {
+    const { year } = req.params
+    const result = await userServices.getTotalIncomeByMonth(year as unknown as number)
+    sendResponse(res, { statusCode: StatusCodes.OK, message: "Total income retrieved successfully", data: result, success: true })
+})
+
+export const userController = { createUserController, updateUserController, changePasswordController, getMyProfileController, deleteProfileController, getMyReferCodeController, getAllUsersController, rewardPointController, getTotalIncomeByMonthController } 
