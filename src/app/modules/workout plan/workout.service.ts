@@ -69,7 +69,7 @@ const markAsComplete = async (id: string, userId: string, payload: any) => {
     }
     const result = await prisma.aiWorkoutPlan.update({
         where: { id, userId },
-        data: { workoutData: { mart_complete: payload.mark_complete } },
+        data: { workoutData: { mark_complete: payload.mark_complete } },
     });
 
     await prisma.user.update({

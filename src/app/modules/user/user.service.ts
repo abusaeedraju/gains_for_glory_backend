@@ -5,7 +5,7 @@ import { compare, hash } from "bcrypt"
 import { OTPFn } from "../../helper/OTPFn";
 import { getImageUrl } from "../../helper/uploadFile";
 import { prisma } from "../../../utils/prisma";
-import { SubscriptionPlan } from "@prisma/client";
+import { Status, SubscriptionPlan } from "@prisma/client";
 import dayjs from 'dayjs';
 
 const createUserIntoDB = async (payload: any) => {
@@ -160,42 +160,72 @@ const getMyReferCode = async (id: string) => {
 
 // const getAllUsers = async (search?: SubscriptionPlan) => {
 //     const result = await prisma.user.findMany({
-//         where: {
-//             subscription: search,
+//       where: {
+//         subscription: search,
+//         role: { not: "ADMIN" }, // 🚀 Exclude admin users
+//       },
+//       select: {
+//         id: true,
+//         name: true,
+//         email: true,
+//         location: true,
+//         subscription: true,
+//         status: true,
+//         referPoint: true,
+//       },
+//     });
 
-//         },
-//         select: {
-//             id: true,
-//             name: true,
-//             email: true,
-//             location: true, 
-//             subscription: true,
-//             status: true,
-//             referPoint: true,
-//         }
-//     })
-//     return result
-// }
-const getAllUsers = async (search?: SubscriptionPlan) => {
-    const result = await prisma.user.findMany({
-      where: {
-        subscription: search,
-        role: { not: "ADMIN" }, // 🚀 Exclude admin users
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        location: true,
-        subscription: true,
-        status: true,
-        referPoint: true,
-      },
-    });
-  
-    return result;
-  };
-  
+//     return result;
+//   };
+
+const getAllUsers = async (
+    page: any,
+    limit: any,
+    search?: SubscriptionPlan
+
+) => {
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+        prisma.user.findMany({
+            where: {
+                subscription: search,
+                role: { not: "ADMIN" }, // 🚀 Exclude admin users
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                location: true,
+                subscription: true,
+                status: true,
+                referPoint: true,
+            },
+            skip,
+            take: Number(limit),
+            orderBy: { createdAt: "desc" }, // optional: latest first
+        }),
+
+        prisma.user.count({
+            where: {
+                subscription: search,
+                role: { not: "ADMIN" },
+            },
+        }),
+    ]);
+
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+        data: users,
+    };
+};
+
+
 const rewardPoint = async (id: string, rewardPoint: number) => {
     const findUser = await prisma.user.findUnique({
         where: {
@@ -263,12 +293,12 @@ const getTotalIncomeByMonth = async (year: number) => {
     });
 
     const total = monthly.reduce((sum, m) => sum + m.income, 0);
-   const totalUser = await prisma.user.count({
-    where: {   
-        isVerified: true,
-        status: "ACTIVE"
-    },
-   })   
+    const totalUser = await prisma.user.count({
+        where: {
+            isVerified: true,
+            status: "ACTIVE"
+        },
+    })
     return {
         total,
         monthly,
@@ -276,4 +306,33 @@ const getTotalIncomeByMonth = async (year: number) => {
     };
 };
 
-export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile, getMyReferCode, getAllUsers, rewardPoint, getTotalIncomeByMonth }
+const changeUserStatus = async (id: string, status: Status) => {
+    const findUser = await prisma.user.findUnique({
+        where: {
+            id
+        }
+    })
+    if (!findUser) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "User not found")
+    }
+    const result = await prisma.user.update({
+        where: {
+            id
+        },
+        data: {
+            status
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            location: true,
+            subscription: true,
+            status: true,
+            referPoint: true,
+        }
+    })
+    return result
+}
+
+export const userServices = { createUserIntoDB, updateUserIntoDB, changePasswordIntoDB, getMyProfile, deleteProfile, getMyReferCode, getAllUsers, rewardPoint, getTotalIncomeByMonth, changeUserStatus }

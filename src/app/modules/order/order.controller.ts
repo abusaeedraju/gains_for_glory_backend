@@ -17,9 +17,9 @@ const getMyOrderController = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getAllOrdersController = catchAsync(async (req: Request, res: Response) => {
-
+    const { page, limit } = req.query;
     const { status } = req.query;
-    const result = await orderService.getAllOrders(status as OrderStatus);
+    const result = await orderService.getAllOrders(page as any|| 1 , limit as any||10, status as OrderStatus);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,

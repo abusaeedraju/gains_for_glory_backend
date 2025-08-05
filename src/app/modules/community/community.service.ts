@@ -25,7 +25,7 @@ const getCommunity = async (userId: string) => {
 }
 
 
-const getCommunityRequest = async (typeStr: string) => {
+const getCommunityRequest = async (page: number, limit: number, typeStr: string) => {
 
     if (!typeStr) {
         throw new ApiError(StatusCodes.NOT_FOUND, "CommunityName is required")
@@ -62,12 +62,24 @@ const getCommunityRequest = async (typeStr: string) => {
             workoutCommunityStatus: true,
             financeCommunityStatus: true
         },
-
+        skip: (page - 1) * limit,
+        take: Number(limit),
     })
     if (result.length === 0) {
         throw new ApiError(StatusCodes.NOT_FOUND, "No request found")
     }
-    return result
+    const total = await prisma.user.count({
+        where: queryBuilder,
+    })
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+        data: result,
+    }
 
 }
 
@@ -119,23 +131,23 @@ const acceptRequest = async (userId: string, community: string) => {
 
     // Step 1: Get all group chats
     const groupChats = await prisma.groupChat.findMany();
-const isGroupMember = await prisma.groupMember.findFirst({
-    where: {
-        userId: userId,
-        groupChatId: {
-            in: groupChats.map(group => group.id)
-        }   
-    },
-})
-if (!isGroupMember) {
-    // Step 2: Add this user to all groups
-    await prisma.groupMember.createMany({
-        data: groupChats.map(group => ({
+    const isGroupMember = await prisma.groupMember.findFirst({
+        where: {
             userId: userId,
-            groupChatId: group.id,
-        }))
-    });
-}   
+            groupChatId: {
+                in: groupChats.map(group => group.id)
+            }
+        },
+    })
+    if (!isGroupMember) {
+        // Step 2: Add this user to all groups
+        await prisma.groupMember.createMany({
+            data: groupChats.map(group => ({
+                userId: userId,
+                groupChatId: group.id,
+            }))
+        });
+    }
 
 
     return result

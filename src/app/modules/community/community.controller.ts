@@ -18,7 +18,8 @@ const getCommunityController = catchAsync(async (req: Request, res: Response) =>
 
 const getCommunityRequestController = catchAsync(async (req: Request, res: Response) => {
     const type = req.query.type
-    const communityData = await communityServices.getCommunityRequest(type as string);
+    const { page, limit } = req.query
+    const communityData = await communityServices.getCommunityRequest(page as any || 1, limit as any || 10,type as string);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         message: "Bible Community data retrieved successfully",

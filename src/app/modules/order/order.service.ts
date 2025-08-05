@@ -39,7 +39,8 @@ const getMyOrder = async (userId: string) => {
     return result
 }
 
-const getAllOrders = async (search?: OrderStatus) => {
+const getAllOrders = async (page:any,limit:any,search?: OrderStatus) => {
+    const skip = (page - 1) * limit;
     const result = await prisma.order.findMany({
         where: {
             orderStatus: search
@@ -71,9 +72,24 @@ const getAllOrders = async (search?: OrderStatus) => {
         },
         orderBy: {
             createdAt: "desc"
-        }
+        },
+        skip,
+        take: Number(limit),
     })
-    return result
+    const total = await prisma.order.count({
+        where: {
+            orderStatus: search
+        },
+    })
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        },
+        data: result,
+    }
 }
 
 const updateOrderStatus = async (id: string, payload: any, userId: string) => {

@@ -3,7 +3,7 @@ import catchAsync from "../../../shared/catchAsync";
 import { userServices } from "./user.service";
 import sendResponse from "../../middleware/sendResponse";
 import { StatusCodes } from "http-status-codes";
-import { SubscriptionPlan } from "@prisma/client";
+import { Status, SubscriptionPlan } from "@prisma/client";
 
 
 const createUserController = catchAsync(async (req: Request, res: Response) => {
@@ -44,7 +44,8 @@ const getMyReferCodeController = catchAsync(async (req: Request, res: Response) 
 })
 const getAllUsersController = catchAsync(async (req: Request, res: Response) => {
     const { search } = req.query
-    const result = await userServices.getAllUsers(search as SubscriptionPlan)
+    const { page, limit } = req.query
+    const result = await userServices.getAllUsers(page as any || 1 , limit as any || 10, search as SubscriptionPlan)
     sendResponse(res, { statusCode: StatusCodes.OK, message: "Users retrieved successfully", data: result, success: true })
 })
 
@@ -61,4 +62,10 @@ const getTotalIncomeByMonthController = catchAsync(async (req: Request, res: Res
     sendResponse(res, { statusCode: StatusCodes.OK, message: "Total income retrieved successfully", data: result, success: true })
 })
 
-export const userController = { createUserController, updateUserController, changePasswordController, getMyProfileController, deleteProfileController, getMyReferCodeController, getAllUsersController, rewardPointController, getTotalIncomeByMonthController } 
+const changeUserStatusController = catchAsync(async (req: Request, res: Response) => {
+    const { userId } = req.params
+    const status = req.query.status as Status
+    const result = await userServices.changeUserStatus(userId, status)
+    sendResponse(res, { statusCode: StatusCodes.OK, message: "User status updated successfully", data: result, success: true })
+})  
+export const userController = { createUserController, updateUserController, changePasswordController, getMyProfileController, deleteProfileController, getMyReferCodeController, getAllUsersController, rewardPointController, getTotalIncomeByMonthController, changeUserStatusController } 

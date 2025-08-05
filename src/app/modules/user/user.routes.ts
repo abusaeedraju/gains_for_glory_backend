@@ -22,5 +22,6 @@ route.get("/all-users", auth(Role.ADMIN), userController.getAllUsersController)
 
 route.put("/reward-point", auth(), userController.rewardPointController)
 route.get("/total-income/:year", auth(Role.ADMIN), userController.getTotalIncomeByMonthController)
+route.put("/change-status/:userId", auth(Role.ADMIN), userController.changeUserStatusController)
 
 export const userRoutes = route
