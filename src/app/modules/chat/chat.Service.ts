@@ -43,13 +43,15 @@ export const sendMessage = async (
   groupChatId: string,
   content: string
 ) => {
+  // ✅ Ensure group exists
   const groupChat = await prisma.groupChat.findUnique({
     where: { id: groupChatId },
   });
   if (!groupChat) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Invalid group chat id');
-  } 
-  
+    throw new Error("Invalid group chat id");
+  }
+
+  // ✅ Save message
   const message = await prisma.message.create({
     data: {
       senderId,
@@ -57,19 +59,16 @@ export const sendMessage = async (
       content,
     },
     include: {
-      sender: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      sender: { select: { id: true, name: true } },
     },
   });
+
   return message;
 };
 
-export const getGroupMessages = async (groupChatId: string) => {
-  const groupChat = await prisma.groupChat.findFirst({
+
+export const getGroupMessages = async (groupChatId: string, limit: number) => {
+  const groupChat = await prisma.groupChat.findUnique({
     where: { id: groupChatId },
   });
   if (!groupChat) {
@@ -77,7 +76,7 @@ export const getGroupMessages = async (groupChatId: string) => {
   }
   const messages = await prisma.message.findMany({
     where: { groupChatId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: 'desc' },
     include: {
       sender: {
         select: {
@@ -86,6 +85,8 @@ export const getGroupMessages = async (groupChatId: string) => {
         },
       },
     },
+    take: limit,
+    skip: 0,
   });
   return messages;
 

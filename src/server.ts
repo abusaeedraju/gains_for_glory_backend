@@ -192,32 +192,38 @@ wss.on("connection", (ws: ExtendedWebSocket) => {
       switch (data.type) {
         case "joinGroup":
           ws.userId = data.userId;
-          ws.groupChatId = data.groupChatId;
+          ws.groupChatId = data.groupId;
           console.log(`User ${ws.userId} joined group ${ws.groupChatId}`);
 
-          const history = await getGroupMessages(data.groupChatId);
+          const history = await getGroupMessages(data.groupId, 50);
           ws.send(JSON.stringify({ type: "history", messages: history }));
           break;
-
         case "sendMessage":
-          if (!ws.groupChatId || !ws.userId) return;
 
-          const message = await sendMessage(
-            ws.userId,       // ✅ always take from the joined socket
-            ws.groupChatId,  // ✅ always take from socket
-            data.content
-          );
+          try {
+            // ✅ Use ws.userId and ws.groupChatId (from joinGroup)
+            const message = await sendMessage(
+              data.userId,
+              data.groupId,
+              data.content
+            );
 
-          wss.clients.forEach((client: ExtendedWebSocket) => {
-            if (
-              client.readyState === WebSocket.OPEN &&
-              client.groupChatId === ws.groupChatId
-            ) {
-              client.send(JSON.stringify({ type: "newMessage", message }));
-            }
-          });
+            console.log("✅ Message saved:", message);
+
+            // Broadcast to all clients in the same group
+            wss.clients.forEach((client: ExtendedWebSocket) => {
+              if (
+                client.readyState === WebSocket.OPEN &&
+                client.groupChatId === data.groupId
+              ) {
+                client.send(JSON.stringify({ type: "newMessage", message }));
+              }
+            });
+          } catch (err) {
+            console.error("❌ Failed to send message:", err);
+            ws.send(JSON.stringify({ type: "error", error: "Message send failed" }));
+          }
           break;
-
 
         default:
           console.log("Unknown event:", data.type);

@@ -158,16 +158,44 @@ const getMyReferCode = async (id: string) => {
     return result
 }
 
+// const getAllUsers = async (search?: SubscriptionPlan) => {
+//     const result = await prisma.user.findMany({
+//         where: {
+//             subscription: search,
+
+//         },
+//         select: {
+//             id: true,
+//             name: true,
+//             email: true,
+//             location: true, 
+//             subscription: true,
+//             status: true,
+//             referPoint: true,
+//         }
+//     })
+//     return result
+// }
 const getAllUsers = async (search?: SubscriptionPlan) => {
     const result = await prisma.user.findMany({
-        where: {
-            subscription: search
-
-        }
-    })
-    return result
-}
-
+      where: {
+        subscription: search,
+        role: { not: "ADMIN" }, // 🚀 Exclude admin users
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        location: true,
+        subscription: true,
+        status: true,
+        referPoint: true,
+      },
+    });
+  
+    return result;
+  };
+  
 const rewardPoint = async (id: string, rewardPoint: number) => {
     const findUser = await prisma.user.findUnique({
         where: {
