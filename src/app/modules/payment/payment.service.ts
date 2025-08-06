@@ -3,6 +3,7 @@ import { prisma } from "../../../utils/prisma";
 import ApiError from "../../error/ApiErrors";
 import { stripe } from "../../../config/stripe";
 import { createStripeCustomerAcc } from "../../helper/createStripeCustomerAcc";
+import { jwtHelpers } from "../../helper/jwtHelper";
 
 interface payloadType {
   amount: number;
@@ -511,7 +512,12 @@ const subscribeToPlanFromStripe = async (payload: any) => {
       paymentMethod: payload?.paymentMethod,
     },
   });
-  return updateUserPlan;
+  const accessToken = jwtHelpers.generateToken({
+    id: payload.userId,
+    email: payload.email,
+    subscription: true,
+  }, { expiresIn: "1h" }); 
+  return {accessToken, updateUserPlan};
 
 };
 

@@ -91,12 +91,12 @@ const getDonationController = catchAsync(
 
 const subscribeToPlanController = catchAsync(
   async (req: Request, res: Response) => {
-    const { id: userId } = req.user;
+    const { id: userId,email } = req.user;
     const payload = req.body as {
       paymentMethodId: string;
       subscriptionId: string;
     };
-    const body = {...payload, userId}
+    const body = {...payload, userId, email}
     const result = await paymentService.subscribeToPlanFromStripe(body);
     sendResponse(res, {
       statusCode: StatusCodes.OK,
