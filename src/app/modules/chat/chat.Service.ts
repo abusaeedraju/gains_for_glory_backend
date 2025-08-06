@@ -85,7 +85,7 @@ export const getGroupMessages = async (groupChatId: string, limit: number) => {
         },
       },
     },
-    take: limit,
+    take: Number(limit),
     skip: 0,
   });
   return messages;
