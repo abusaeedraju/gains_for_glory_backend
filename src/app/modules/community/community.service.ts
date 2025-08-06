@@ -357,7 +357,21 @@ const getCommunityUsers = async () => {
     const financeUsers = await prisma.user.count({
         where: { financeCommunityStatus: "APPROVED" },
     })
-    return { "bibleUsers": bibleUsers, "workoutUsers": workoutUsers, "financeUsers": financeUsers }
+    const groupChatId = await prisma.groupChat.findMany()
+    const bible = {
+       bibleUser: bibleUsers,
+        bibleGroupChatId: groupChatId.filter((chat) => chat.name === "Bible Study Chat")[0].id
+    }
+    const workout = {
+       workoutUser: workoutUsers,
+        workoutGroupChatId: groupChatId.filter((chat) => chat.name === "Workout Study Chat")[0].id
+    }
+    const finance = {
+        financeUser: financeUsers,
+        financeGroupChatId: groupChatId.filter((chat) => chat.name === "Finance Study Chat")[0].id
+    }
+
+    return { "bible": bible, "workout": workout, "finance": finance }
 }
 
 export const communityServices = { getCommunity, createPost, getCommunityRequest, acceptRequest, blockRequest, getCommunityPosts, getCommunityPostByUserId, editPost, deletePost, isValidCommunityUser, getCommunityUsers }
