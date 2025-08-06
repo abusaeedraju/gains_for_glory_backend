@@ -57,7 +57,11 @@ const logInFromDB = async (payload: {
     fcmToken: findUser.fcmToken,
   };
   const token = jwtHelpers.generateToken(userInfo, { expiresIn: "30d" });
-  return { accessToken: token, ...userInfo };
+
+  if (!findUser.subscription) {
+    return { accessToken: token, subscription: false, ...userInfo };
+  }
+  return { accessToken: token, subscription: true, ...userInfo };
 };
 
 const verifyOtp = async (payload: { email: string; otp: number }) => {

@@ -3,7 +3,6 @@ import { prisma } from "../../../utils/prisma";
 import ApiError from "../../error/ApiErrors";
 import { stripe } from "../../../config/stripe";
 import { createStripeCustomerAcc } from "../../helper/createStripeCustomerAcc";
-import { console } from "inspector";
 
 interface payloadType {
   amount: number;
@@ -13,6 +12,7 @@ interface payloadType {
   email: string;
   number: string;
   country: string;
+
   city: string;
   address: string;
 }
@@ -171,7 +171,7 @@ const createIntentInStripeForDonation = async (payload: payloadTypeForDonation, 
       paymentMethod: payload.paymentMethod,
     },
   });
-  
+
   return payment;
 
 
@@ -432,15 +432,23 @@ const subscribeToPlanFromStripe = async (payload: any) => {
   }
 
 
-  if (!findUser?.customerId) {
-    await createStripeCustomerAcc(findUser);
+  // Create Stripe customer if not exists
+  let updatedUser;
+  if (!findUser.customerId) {
+    updatedUser = await createStripeCustomerAcc(findUser); // ✅ Must return updated user with customerId
   }
 
+  const customerId = findUser.customerId || updatedUser?.customerId;
+  if (!customerId) {
+    throw new ApiError(StatusCodes.EXPECTATION_FAILED, "Missing Stripe customer ID");
+  }
+
+  // Attach payment method
   await stripe.paymentMethods.attach(payload.paymentMethodId, {
-    customer: findUser?.customerId as string,
+    customer: customerId,
   });
 
-  await stripe.customers.update(findUser.customerId as string, {
+  await stripe.customers.update(customerId as string, {
     invoice_settings: {
       default_payment_method: payload.paymentMethodId,
     },
@@ -457,7 +465,7 @@ const subscribeToPlanFromStripe = async (payload: any) => {
 
 
   const purchasePlan = (await stripe.subscriptions.create({
-    customer: findUser.customerId as string,
+    customer: customerId,
     items: [{ price: findSubscription.stripePriceId }],
     trial_period_days: 30,
   })) as any;
