@@ -20,7 +20,8 @@ const sendMessageController = catchAsync(async (req: Request, res: Response) => 
 const getGroupMessagesController = catchAsync(async (req: Request, res: Response) => {
     const { groupChatId } = req.params;
     const userId = req.user.id;
-    const result = await chatServices.getGroupMessages(groupChatId as string);
+    const { limit } = req.query;
+    const result = await chatServices.getGroupMessages(groupChatId as string, limit as any || 50);
     sendResponse(res, {
         statusCode: StatusCodes.OK,
         success: true,
