@@ -76,7 +76,7 @@ export const getGroupMessages = async (groupChatId: string, limit: number) => {
   }
   const messages = await prisma.message.findMany({
     where: { groupChatId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: 'desc' },
     include: {
       sender: {
         select: {
