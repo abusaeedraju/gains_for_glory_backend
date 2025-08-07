@@ -515,6 +515,7 @@ const subscribeToPlanFromStripe = async (payload: any) => {
   const accessToken = jwtHelpers.generateToken({
     id: payload.userId,
     email: payload.email,
+    role: payload.role,
     subscription: true,
   }, { expiresIn: "1h" }); 
   return {accessToken, updateUserPlan};
