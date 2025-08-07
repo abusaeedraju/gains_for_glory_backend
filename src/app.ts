@@ -17,6 +17,7 @@ const app = express();
 export const corsOptions = {
     origin: [
         "http://localhost:3000",
+        "https://gains-for-glory.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
