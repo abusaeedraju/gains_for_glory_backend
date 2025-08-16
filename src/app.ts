@@ -18,6 +18,7 @@ export const corsOptions = {
     origin: [
         "http://localhost:3000",
         "https://gains-for-glory.vercel.app",
+        "http://92.113.21.60:3009",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
